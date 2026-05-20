@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Cyber Matrix Crypto Pro</title>
+    <style>
+        body {
+            background-color: #020204;
+            color: #00f0ff;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Đúng quy tắc khoảng cách bắt buộc: Trên 30px, Biên 3px */
+        .container {
+            margin-top: 30px;
+            margin-left: 3px;
+            margin-right: 3px;
+            padding-bottom: 50px;
+        }
+
+        h3 {
+            color: #ff007f;
+            text-shadow: 0 0 8px #ff007f, 0 0 15px #ff007f;
+            font-size: 14px;
+            margin: 12px 0 6px 0;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-badge {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .status-locked { background: rgba(255, 0, 127, 0.2); border: 1px solid #ff007f; color: #ff007f; }
+        .status-unlocked { background: rgba(0, 255, 100, 0.2); border: 1px solid #00ff64; color: #00ff64; text-shadow: 0 0 5px #00ff64; }
+
+        /* --- KHU VỰC LƯỚI --- */
+        .grid-container {
+            display: grid;
+            margin-bottom: 12px;
+            padding: 4px;
+            background: rgba(0, 240, 255, 0.01);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* Lưới Mã Khóa 4x4 */
+        .decoy-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            background: rgba(255, 0, 127, 0.02);
+            border: 1px dashed #ff007f;
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.15);
+            border-radius: 4px;
+        }
+
+        /* Lưới Dữ Liệu 3x9 */
+        .grid-3x9 {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            border: 1px solid #00f0ff;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+            border-radius: 4px;
+            transition: all 0.4s ease;
+        }
+
+        /* Trạng thái khi lưới 3x9 bị khóa */
+        .grid-locked {
+            opacity: 0.15;
+            pointer-events: none;
+            filter: blur(1.5px);
+            border-color: #555555;
+            box-shadow: none;
+        }
+
+        .grid-item {
+            background: #040814;
+            position: relative;
+            border-radius: 3px;
+            touch-action: none;
+            box-sizing: border-box;
+            height: 46px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 3px;
+            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s; 
+        }
+
+        .decoy-grid .grid-item { border: 1px solid #ff007f; box-shadow: inset 0 0 6px rgba(255, 0, 127, 0.1); }
+        .grid-3x9 .grid-item { border: 1px solid #00f0ff; box-shadow: inset 0 0 8px rgba(0, 240, 255, 0.15); }
+
+        /* SỐ THỨ TỰ (STT) NẰM CHÍNH GIỮA PHÍA TRÊN */
+        .cell-id {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            line-height: 1;
+            margin-bottom: 2px;
+            opacity: 0.85;
+            pointer-events: none;
+        }
+        .decoy-grid .cell-id { color: #ff007f; text-shadow: 0 0 2px #ff007f; }
+        .grid-3x9 .cell-id { color: #ffd700; text-shadow: 0 0 3px #ffd700; }
+
+        /* Chữ nội dung nằm chính giữa phía dưới STT */
+        .grid-item textarea {
+            width: 100%;
+            height: 24px;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            text-shadow: 0 0 4px #ffffff;
+            padding: 0 2px;
+            box-sizing: border-box;
+            resize: none;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            font-family: inherit;
+            pointer-events: none;
+            overflow: hidden;
+            line-height: 24px;
+        }
+
+        /* HIỆU ỨNG ĐI CÙNG NHAU KHI KÉO THẢ */
+        .grid-item.dragging {
+            position: fixed !important;
+            z-index: 9999 !important;
+            opacity: 0.95;
+            transform: scale(1.1) !important;
+            border: 1px solid #ffffff !important;
+            background: #091630 !important;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 0 25px rgba(0, 240, 255, 0.3) !important;
+            transition: none !important;
+        }
+
+        /* Hiệu ứng dạt ô sang hai bên */
+        .grid-item.shift-left { transform: translateX(-12px) scale(0.96); border-color: #ffd700 !important; }
+        .grid-item.shift-right { transform: translateX(12px) scale(0.96); border-color: #ffd700 !important; }
+
+        /* --- OUTPUT AREA (TỰ ĐỘNG GIÃN ĐẦY ĐỦ) --- */
+        .output-container {
+            position: relative;
+            width: 100%;
+            transition: all 0.4s ease;
+        }
+        .output-locked { opacity: 0.15; pointer-events: none; filter: blur(1px); }
+
+        .output-box {
+            width: 100%;
+            min-height: 90px;
+            height: auto; 
+            background: #030306;
+            border: 1px solid #00f0ff;
+            color: #00f0ff;
+            text-shadow: 0 0 4px rgba(0, 240, 255, 0.6);
+            padding: 8px;
+            padding-top: 38px; 
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            resize: none;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+            letter-spacing: 0.5px;
+            line-height: 1.6;
+            overflow-y: hidden; 
+        }
+
+        .btn-copy {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: #030306;
+            border: 1px solid #00f0ff;
+            color: #00f0ff;
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: bold;
+            font-family: inherit;
+            text-transform: uppercase;
+            border-radius: 3px;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+            transition: all 0.1s ease;
+            z-index: 20;
+        }
+        .btn-copy:active { background: #00f0ff; color: #020204; box-shadow: 0 0 10px #00f0ff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- KHÓA 4x4 -->
+    <h3>
+        <span>1. Crypto Lock (4x4)</span>
+        <span id="lockStatus" class="status-badge status-locked">LOCKED</span>
+    </h3>
+    <div class="grid-container decoy-grid" id="decoyGrid"></div>
+
+    <!-- LƯỚI CHÍNH 3x9 -->
+    <h3>2. Matrix Data (3x9)</h3>
+    <div class="grid-container grid-3x9 grid-locked" id="mainGrid"></div>
+
+    <!-- KẾT QUẢ -->
+    <h3>3. Output Stream</h3>
+    <div class="output-container output-locked" id="outputArea">
+        <button class="btn-copy" id="btnCopy">Copy</button>
+        <textarea id="textStreamLog" class="output-box" readonly placeholder="Hãy giải mã lưới 4x4 phía trên để xem chuỗi dữ liệu..."></textarea>
+    </div>
+</div>
+
+<script>
+    const decoyGrid = document.getElementById('decoyGrid');
+    const mainGrid = document.getElementById('mainGrid');
+    const outputArea = document.getElementById('outputArea');
+    const textStreamLog = document.getElementById('textStreamLog');
+    const btnCopy = document.getElementById('btnCopy');
+    const lockStatus = document.getElementById('lockStatus');
+
+    const CORRECT_PASSWORD = ["🔮", "👁", "⚡", "☣", "❖", "🔺", "⎔", "𝝮", "⚙", "✦", "✕", "🌀", "⛓", "⚝", "🔱", "💎"];
+    let decoyData = ["👁", "🔮", "⚡", "☣", "❖", "🔺", "⎔", "𝝮", "⚙", "✦", "✕", "🌀", "⛓", "⚝", "🔱", "💎"];
+    
+    // Xáo trộn ngẫu nhiên chính xác toàn bộ 27 từ nguyên bản bạn cung cấp (bao gồm cả các từ trùng lặp)
+    let mainData = [
+        { id: "01", val: "custom" },   { id: "02", val: "old" },      { id: "03", val: "victory" },
+        { id: "04", val: "lounge" },   { id: "05", val: "safe" },     { id: "06", val: "yellow" },
+        { id: "07", val: "link" },     { id: "08", val: "whiskey" },  { id: "09", val: "chimney" },
+        { id: "10", val: "broken" },   { id: "11", val: "work" },     { id: "12", val: "aspect" },
+        { id: "13", val: "safe" },     { id: "14", val: "board" },    { id: "15", val: "arrow" },
+        { id: "16", val: "pudding" },  { id: "17", val: "dust" },     { id: "18", val: "gloom" },
+        { id: "19", val: "awkward" },  { id: "20", val: "reason" },   { id: "21", val: "victory" },
+        { id: "22", val: "nation" },   { id: "23", val: "coin" },     { id: "24", val: "recall" },
+        { id: "25", val: "rate" },     { id: "26", val: "pear" },     { id: "27", val: "legal" }
+    ];
+
+    let cachedRects = [];
+    let activeItem = null;
+    let initialX = 0, initialY = 0;
+    let targetInsertIndex = null;
+    let pressTimer = null;
+    let isLongPressed = false;
+    let isUnlocked = false;
+
+    function renderEngine(gridElement, dataArray, prefixStr) {
+        gridElement.innerHTML = '';
+        dataArray.forEach((itemData, idx) => {
+            const item = document.createElement('div');
+            item.className = 'grid-item';
+            item.setAttribute('data-index', idx);
+            item.setAttribute('data-grid', prefixStr);
+
+            const label = document.createElement('span');
+            label.className = 'cell-id';
+
+            const textarea = document.createElement('textarea');
+
+            if (prefixStr === 'main') {
+                label.innerText = itemData.id;       
+                textarea.value = itemData.val;      
+            } else {
+                label.innerText = String(idx + 1).padStart(2, '0'); 
+                textarea.value = itemData;
+            }
+
+            item.appendChild(label);
+            item.appendChild(textarea);
+            
+            setupTouchEngine(item, dataArray, prefixStr);
+            gridElement.appendChild(item);
+        });
+    }
+
+    function checkPassword() {
+        const match = decoyData.every((val, index) => val === CORRECT_PASSWORD[index]);
+        if (match) {
+            isUnlocked = true;
+            lockStatus.innerText = "UNLOCKED";
+            lockStatus.className = "status-badge status-unlocked";
+            mainGrid.classList.remove('grid-locked');
+            outputArea.classList.remove('output-locked');
+        } else {
+            isUnlocked = false;
+            lockStatus.innerText = "LOCKED";
+            lockStatus.className = "status-badge status-locked";
+            mainGrid.classList.add('grid-locked');
+            outputArea.classList.add('output-locked');
+        }
+    }
+
+    function renderAll() {
+        renderEngine(decoyGrid, decoyData, 'decoy');
+        renderEngine(mainGrid, mainData, 'main');
+        checkPassword();
+        updateRealTimeLog();
+    }
+
+    function autoResizeOutput() {
+        textStreamLog.style.height = 'auto';
+        textStreamLog.style.height = (textStreamLog.scrollHeight) + 'px';
+    }
+
+    function cacheGridLayout(prefixStr) {
+        cachedRects = [];
+        const items = document.querySelectorAll(`.grid-item[data-grid="${prefixStr}"]:not(.dragging)`);
+        items.forEach(item => {
+            const rect = item.getBoundingClientRect();
+            cachedRects.push({
+                index: parseInt(item.getAttribute('data-index')),
+                left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom,
+                width: rect.width, height: rect.height,
+                centerX: rect.left + rect.width / 2,
+                centerY: rect.top + rect.height / 2,
+                element: item
+            });
+        });
+    }
+
+    function setupTouchEngine(item, dataArray, prefixStr) {
+        item.addEventListener('touchstart', function(e) {
+            if (prefixStr === 'main' && !isUnlocked) return;
+
+            isLongPressed = false;
+            const touch = e.touches[0];
+            
+            pressTimer = setTimeout(() => {
+                isLongPressed = true;
+                activeItem = item;
+                
+                cacheGridLayout(prefixStr);
+                const rect = item.getBoundingClientRect();
+                
+                item.style.width = rect.width + 'px';
+                item.style.height = rect.height + 'px';
+                
+                initialX = touch.clientX - rect.left;
+                initialY = touch.clientY - rect.top;
+                
+                item.style.left = rect.left + 'px';
+                item.style.top = rect.top + 'px';
+                
+                item.classList.add('dragging');
+                targetInsertIndex = parseInt(item.getAttribute('data-index'));
+            }, 350); 
+        }, { passive: true });
+
+        item.addEventListener('touchmove', function(e) {
+            if (!isLongPressed) {
+                clearTimeout(pressTimer);
+                return;
+            }
+            
+            if (e.cancelable) e.preventDefault();
+            if (!activeItem) return;
+            
+            const touch = e.touches[0];
+            const currentX = touch.clientX;
+            const currentY = touch.clientY;
+            
+            activeItem.style.left = (currentX - initialX) + 'px';
+            activeItem.style.top = (currentY - initialY) + 'px';
+            
+            let closestBox = null;
+            let minDistance = 99999;
+            
+            cachedRects.forEach(box => {
+                if (box.index === parseInt(activeItem.getAttribute('data-index'))) return;
+                
+                const dist = Math.hypot(currentX - box.centerX, currentY - box.centerY);
+                if (dist < minDistance && dist < 80) { 
+                    minDistance = dist;
+                    closestBox = box;
+                }
+            });
+
+            document.querySelectorAll(`.grid-item[data-grid="${prefixStr}"]`).forEach(el => {
+                el.classList.remove('shift-left', 'shift-right');
+            });
+
+            if (closestBox) {
+                targetInsertIndex = closestBox.index;
+                const fromIndex = parseInt(activeItem.getAttribute('data-index'));
+
+                cachedRects.forEach(box => {
+                    if (box.index === fromIndex) return;
+                    
+                    if (box.index === targetInsertIndex) {
+                        if (currentX < box.centerX) {
+                            box.element.classList.add('shift-right');
+                        } else {
+                            box.element.classList.add('shift-left');
+                        }
+                    } else if (box.index > fromIndex && box.index <= targetInsertIndex) {
+                        box.element.classList.add('shift-left');
+                    } else if (box.index < fromIndex && box.index >= targetInsertIndex) {
+                        box.element.classList.add('shift-right');
+                    }
+                });
+            } else {
+                targetInsertIndex = parseInt(activeItem.getAttribute('data-index'));
+            }
+        }, { passive: false });
+
+        item.addEventListener('touchend', function(e) {
+            clearTimeout(pressTimer);
+            if (!isLongPressed || !activeItem) {
+                activeItem = null;
+                return;
+            }
+            
+            document.querySelectorAll(`.grid-item[data-grid="${prefixStr}"]`).forEach(el => {
+                el.classList.remove('shift-left', 'shift-right');
+            });
+            
+            const fromIndex = parseInt(activeItem.getAttribute('data-index'));
+            
+            if (targetInsertIndex !== null && targetInsertIndex !== fromIndex) {
+                const [movedData] = dataArray.splice(fromIndex, 1);
+                dataArray.splice(targetInsertIndex, 0, movedData);
+            }
+            
+            activeItem.classList.remove('dragging');
+            activeItem.style.width = ''; activeItem.style.height = '';
+            activeItem.style.left = ''; activeItem.style.top = '';
+            
+            activeItem = null;
+            targetInsertIndex = null;
+            isLongPressed = false;
+            
+            renderAll();
+        });
+    }
+
+    function updateRealTimeLog() {
+        if (!isUnlocked) {
+            textStreamLog.value = "[HỆ THỐNG ĐANG KHÓA - HÃY GIẢI MÃ LƯỚI KHOÁ 4x4 PHÍA TRÊN]";
+            autoResizeOutput();
+            return;
+        }
+        
+        let pureTextValues = mainData.map(item => {
+            return item.val.trim() === "" ? "Ø" : item.val;
+        });
+        
+        textStreamLog.value = pureTextValues.join(' ');
+        autoResizeOutput(); 
+    }
+
+    btnCopy.addEventListener('click', () => {
+        if (!isUnlocked) return;
+        textStreamLog.select();
+        textStreamLog.setSelectionRange(0, 99999);
+        
+        navigator.clipboard.writeText(textStreamLog.value).then(() => {
+            const originalText = btnCopy.innerText;
+            btnCopy.innerText = "Copied!";
+            btnCopy.style.borderColor = "#ff007f";
+            btnCopy.style.color = "#ff007f";
+            setTimeout(() => {
+                btnCopy.innerText = originalText;
+                btnCopy.style.borderColor = "#00f0ff";
+                btnCopy.style.color = "#00f0ff";
+            }, 1000);
+        }).catch(() => {
+            alert("Không thể sao chép tự động.");
+        });
+    });
+
+    renderAll();
+</script>
+
+</body>
+</html>

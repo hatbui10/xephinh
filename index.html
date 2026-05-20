@@ -76,15 +76,6 @@
             transition: all 0.4s ease;
         }
 
-        /* Trạng thái khi lưới 3x9 bị khóa */
-        .grid-locked {
-            opacity: 0.15;
-            pointer-events: none;
-            filter: blur(1.5px);
-            border-color: #555555;
-            box-shadow: none;
-        }
-
         .grid-item {
             background: #040814;
             position: relative;
@@ -103,18 +94,18 @@
         .decoy-grid .grid-item { border: 1px solid #ff007f; box-shadow: inset 0 0 6px rgba(255, 0, 127, 0.1); }
         .grid-3x9 .grid-item { border: 1px solid #00f0ff; box-shadow: inset 0 0 8px rgba(0, 240, 255, 0.15); }
 
-        /* SỐ THỨ TỰ (STT) NẰM CHÍNH GIỮA PHÍA TRÊN */
+        /* SỐ THỨ TỰ (STT) ĐÃ ĐƯỢC LÀM SÁNG */
         .cell-id {
             font-size: 10px;
             font-weight: bold;
             letter-spacing: 0.5px;
             line-height: 1;
             margin-bottom: 2px;
-            opacity: 0.85;
+            opacity: 1; 
             pointer-events: none;
+            color: #ffd700; 
+            text-shadow: 0 0 4px #ffd700, 0 0 8px rgba(255, 215, 0, 0.6); 
         }
-        .decoy-grid .cell-id { color: #ff007f; text-shadow: 0 0 2px #ff007f; }
-        .grid-3x9 .cell-id { color: #ffd700; text-shadow: 0 0 3px #ffd700; }
 
         /* Chữ nội dung nằm chính giữa phía dưới STT */
         .grid-item textarea {
@@ -152,13 +143,12 @@
         .grid-item.shift-left { transform: translateX(-12px) scale(0.96); border-color: #ffd700 !important; }
         .grid-item.shift-right { transform: translateX(12px) scale(0.96); border-color: #ffd700 !important; }
 
-        /* --- OUTPUT AREA (TỰ ĐỘNG GIÃN ĐẦY ĐỦ) --- */
+        /* --- OUTPUT AREA --- */
         .output-container {
             position: relative;
             width: 100%;
             transition: all 0.4s ease;
         }
-        .output-locked { opacity: 0.15; pointer-events: none; filter: blur(1px); }
 
         .output-box {
             width: 100%;
@@ -208,20 +198,20 @@
 <div class="container">
     <!-- KHÓA 4x4 -->
     <h3>
-        <span>1. Crypto Lock (4x4)</span>
-        <span id="lockStatus" class="status-badge status-locked">LOCKED</span>
+        <span>1. Crypto Controller (4x4)</span>
+        <span id="lockStatus" class="status-badge status-locked">MATRIX SHUFFLING</span>
     </h3>
     <div class="grid-container decoy-grid" id="decoyGrid"></div>
 
     <!-- LƯỚI CHÍNH 3x9 -->
     <h3>2. Matrix Data (3x9)</h3>
-    <div class="grid-container grid-3x9 grid-locked" id="mainGrid"></div>
+    <div class="grid-container grid-3x9" id="mainGrid"></div>
 
     <!-- KẾT QUẢ -->
     <h3>3. Output Stream</h3>
-    <div class="output-container output-locked" id="outputArea">
+    <div class="output-container" id="outputArea">
         <button class="btn-copy" id="btnCopy">Copy</button>
-        <textarea id="textStreamLog" class="output-box" readonly placeholder="Hãy giải mã lưới 4x4 phía trên để xem chuỗi dữ liệu..."></textarea>
+        <textarea id="textStreamLog" class="output-box" readonly placeholder="Đang tính toán chuỗi dữ liệu..."></textarea>
     </div>
 </div>
 
@@ -233,21 +223,29 @@
     const btnCopy = document.getElementById('btnCopy');
     const lockStatus = document.getElementById('lockStatus');
 
-    const CORRECT_PASSWORD = ["🔮", "👁", "⚡", "☣", "❖", "🔺", "⎔", "𝝮", "⚙", "✦", "✕", "🌀", "⛓", "⚝", "🔱", "💎"];
-    let decoyData = ["👁", "🔮", "⚡", "☣", "❖", "🔺", "⎔", "𝝮", "⚙", "✦", "✕", "🌀", "⛓", "⚝", "🔱", "💎"];
-    
-    // Xáo trộn ngẫu nhiên chính xác toàn bộ 27 từ nguyên bản bạn cung cấp (bao gồm cả các từ trùng lặp)
-    let mainData = [
-        { id: "01", val: "custom" },   { id: "02", val: "old" },      { id: "03", val: "victory" },
-        { id: "04", val: "lounge" },   { id: "05", val: "safe" },     { id: "06", val: "yellow" },
-        { id: "07", val: "link" },     { id: "08", val: "whiskey" },  { id: "09", val: "chimney" },
-        { id: "10", val: "broken" },   { id: "11", val: "work" },     { id: "12", val: "aspect" },
-        { id: "13", val: "safe" },     { id: "14", val: "board" },    { id: "15", val: "arrow" },
-        { id: "16", val: "pudding" },  { id: "17", val: "dust" },     { id: "18", val: "gloom" },
-        { id: "19", val: "awkward" },  { id: "20", val: "reason" },   { id: "21", val: "victory" },
-        { id: "22", val: "nation" },   { id: "23", val: "coin" },     { id: "24", val: "recall" },
-        { id: "25", val: "rate" },     { id: "26", val: "pear" },     { id: "27", val: "legal" }
+    // Mảng dữ liệu ban đầu cho lưới 4x4 (gồm STT và Icon đi cùng nhau)
+    let decoyData = [
+        { id: "01", val: "👁" }, { id: "02", val: "🔮" }, { id: "03", val: "⚡" }, { id: "04", val: "☣" },
+        { id: "05", val: "❖" }, { id: "06", val: "🔺" }, { id: "07", val: "⎔" }, { id: "08", val: "𝝮" },
+        { id: "09", val: "⚙" }, { id: "10", val: "✦" }, { id: "11", val: "✕" }, { id: "12", val: "🌀" },
+        { id: "13", val: "⛓" }, { id: "14", val: "⚝" }, { id: "15", val: "🔱" }, { id: "16", val: "💎" }
     ];
+    
+    // Chuỗi văn bản đích mặc định 3x9 bạn yêu cầu
+    const DEFAULT_TARGET_WORDS = [
+        "board", "whiskey", "awkward", "work", "pudding", "chimney", "coin", "broken", "old", 
+        "safe", "nation", "victory", "link", "safe", "lounge", "victory", "aspect", "legal", 
+        "pear", "recall", "rate", "arrow", "dust", "reason", "gloom", "custom", "yellow"
+    ];
+
+    // Cấu trúc dữ liệu lưới 3x9
+    let mainData = [];
+    DEFAULT_TARGET_WORDS.forEach((word, idx) => {
+        mainData.push({
+            id: String(idx + 1).padStart(2, '0'),
+            val: word
+        });
+    });
 
     let cachedRects = [];
     let activeItem = null;
@@ -255,7 +253,31 @@
     let targetInsertIndex = null;
     let pressTimer = null;
     let isLongPressed = false;
-    let isUnlocked = false;
+    let isCorrectSequence = false;
+
+    // Thuật toán xáo trộn Fisher-Yates
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    // Hàm xáo trộn văn bản của lưới 3x9
+    function shuffleMainValues() {
+        let valuesOnly = mainData.map(item => item.val);
+        shuffleArray(valuesOnly);
+        mainData.forEach((item, idx) => {
+            item.val = valuesOnly[idx];
+        });
+    }
+
+    // Khôi phục lưới 3x9 về chuỗi gốc
+    function resetMainValuesToDefault() {
+        mainData.forEach((item, idx) => {
+            item.val = DEFAULT_TARGET_WORDS[idx];
+        });
+    }
 
     function renderEngine(gridElement, dataArray, prefixStr) {
         gridElement.innerHTML = '';
@@ -267,16 +289,10 @@
 
             const label = document.createElement('span');
             label.className = 'cell-id';
+            label.innerText = itemData.id; 
 
             const textarea = document.createElement('textarea');
-
-            if (prefixStr === 'main') {
-                label.innerText = itemData.id;       
-                textarea.value = itemData.val;      
-            } else {
-                label.innerText = String(idx + 1).padStart(2, '0'); 
-                textarea.value = itemData;
-            }
+            textarea.value = itemData.val;      
 
             item.appendChild(label);
             item.appendChild(textarea);
@@ -286,27 +302,33 @@
         });
     }
 
-    function checkPassword() {
-        const match = decoyData.every((val, index) => val === CORRECT_PASSWORD[index]);
-        if (match) {
-            isUnlocked = true;
-            lockStatus.innerText = "UNLOCKED";
+    // LOGIC THAY ĐỔI: Kiểm tra xem 3 ô mang STT "09", "06", "01" có nằm cạnh nhau không
+    function checkSequenceStatus() {
+        let matchFound = false;
+        
+        // Quét qua mảng 4x4 để tìm cụm liên tiếp 09 -> 06 -> 01
+        for (let i = 0; i <= decoyData.length - 3; i++) {
+            if (decoyData[i].id === "09" && decoyData[i+1].id === "06" && decoyData[i+2].id === "01") {
+                matchFound = true;
+                break;
+            }
+        }
+
+        if (matchFound) {
+            isCorrectSequence = true;
+            lockStatus.innerText = "Mật khẩu khớp";
             lockStatus.className = "status-badge status-unlocked";
-            mainGrid.classList.remove('grid-locked');
-            outputArea.classList.remove('output-locked');
+            resetMainValuesToDefault(); // Trả về chuỗi văn bản đích mặc định không xáo trộn
         } else {
-            isUnlocked = false;
-            lockStatus.innerText = "LOCKED";
+            isCorrectSequence = false;
+            lockStatus.innerText = "Random";
             lockStatus.className = "status-badge status-locked";
-            mainGrid.classList.add('grid-locked');
-            outputArea.classList.add('output-locked');
         }
     }
 
     function renderAll() {
         renderEngine(decoyGrid, decoyData, 'decoy');
         renderEngine(mainGrid, mainData, 'main');
-        checkPassword();
         updateRealTimeLog();
     }
 
@@ -333,8 +355,6 @@
 
     function setupTouchEngine(item, dataArray, prefixStr) {
         item.addEventListener('touchstart', function(e) {
-            if (prefixStr === 'main' && !isUnlocked) return;
-
             isLongPressed = false;
             const touch = e.touches[0];
             
@@ -432,6 +452,21 @@
             if (targetInsertIndex !== null && targetInsertIndex !== fromIndex) {
                 const [movedData] = dataArray.splice(fromIndex, 1);
                 dataArray.splice(targetInsertIndex, 0, movedData);
+                
+                // Mỗi khi kéo thả trên lưới 4x4, hệ thống kiểm tra tạm thời trước khi kích hoạt xáo trộn
+                if (prefixStr === 'decoy') {
+                    let tempMatch = false;
+                    for (let i = 0; i <= decoyData.length - 3; i++) {
+                        if (decoyData[i].id === "09" && decoyData[i+1].id === "06" && decoyData[i+2].id === "01") {
+                            tempMatch = true;
+                            break;
+                        }
+                    }
+                    // Nếu sau khi kéo thả mà 3 ô 9-6-1 KHÔNG đặt cạnh nhau -> Tiếp tục xáo trộn 3x9
+                    if (!tempMatch) {
+                        shuffleMainValues();
+                    }
+                }
             }
             
             activeItem.classList.remove('dragging');
@@ -442,17 +477,12 @@
             targetInsertIndex = null;
             isLongPressed = false;
             
+            checkSequenceStatus();
             renderAll();
         });
     }
 
     function updateRealTimeLog() {
-        if (!isUnlocked) {
-            textStreamLog.value = "[HỆ THỐNG ĐANG KHÓA - HÃY GIẢI MÃ LƯỚI KHOÁ 4x4 PHÍA TRÊN]";
-            autoResizeOutput();
-            return;
-        }
-        
         let pureTextValues = mainData.map(item => {
             return item.val.trim() === "" ? "Ø" : item.val;
         });
@@ -462,7 +492,6 @@
     }
 
     btnCopy.addEventListener('click', () => {
-        if (!isUnlocked) return;
         textStreamLog.select();
         textStreamLog.setSelectionRange(0, 99999);
         
@@ -481,6 +510,9 @@
         });
     });
 
+    // Lúc vừa mở trang: Xáo trộn ngẫu nhiên dữ liệu 3x9
+    shuffleMainValues();
+    checkSequenceStatus();
     renderAll();
 </script>
 

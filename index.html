@@ -5,345 +5,1256 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Cyber Matrix Crypto Pro</title>
     <style>
+        * { box-sizing: border-box; }
+
         body {
-            background-color: #020204;
-            color: #00f0ff;
-            font-family: 'Courier New', Courier, monospace;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 12% -4%, rgba(255, 0, 127, .18), transparent 34%),
+                radial-gradient(circle at 88% 4%, rgba(0, 240, 255, .13), transparent 32%),
+                radial-gradient(circle at 50% 110%, rgba(255, 145, 64, .08), transparent 38%),
+                linear-gradient(180deg, #05060e 0%, #020207 52%, #07030a 100%);
+            color: #d9fbff;
+            font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
             overflow-x: hidden;
             -webkit-user-select: none;
             user-select: none;
         }
 
-        /* Đúng quy tắc khoảng cách bắt buộc: Trên 30px, Biên 3px */
         .container {
-            margin-top: 30px;
-            margin-left: 3px;
-            margin-right: 3px;
-            padding-bottom: 50px;
+            width: min(1040px, calc(100% - 24px));
+            margin: 28px auto 0;
+            padding-bottom: 42px;
         }
 
         h3 {
-            color: #ff007f;
-            text-shadow: 0 0 8px #ff007f, 0 0 15px #ff007f;
-            font-size: 14px;
-            margin: 12px 0 6px 0;
+            color: #ff4da0;
+            text-shadow: 0 0 10px rgba(255, 0, 127, .45);
+            font-size: 15px;
+            margin: 0 0 10px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1.35px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
         }
 
         .status-badge {
             font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 3px;
+            padding: 3px 8px;
+            border-radius: 999px;
             font-weight: bold;
+            white-space: nowrap;
         }
-        .status-locked { background: rgba(255, 0, 127, 0.2); border: 1px solid #ff007f; color: #ff007f; }
-        .status-unlocked { background: rgba(0, 255, 100, 0.2); border: 1px solid #00ff64; color: #00ff64; text-shadow: 0 0 5px #00ff64; }
+        .status-locked { background: rgba(255, 0, 127, 0.16); border: 1px solid #ff007f; color: #ff4da0; box-shadow: 0 0 8px rgba(255,0,127,.35); }
+        .status-unlocked { background: rgba(0, 255, 100, 0.16); border: 1px solid #00ff64; color: #00ff64; text-shadow: 0 0 5px #00ff64; box-shadow: 0 0 10px rgba(0,255,100,.35); }
 
-        /* --- KHU VỰC LƯỚI --- */
-        .grid-container {
+        /* ================= PANEL THIẾT LẬP + NÚT BẤM ================= */
+        .panel {
+            border: 1px solid rgba(0, 240, 255, 0.45);
+            background:
+                linear-gradient(180deg, rgba(0, 240, 255, 0.07), rgba(255, 0, 127, 0.035)),
+                #03040a;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 14px;
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.13), inset 0 0 22px rgba(0, 240, 255, 0.04);
+        }
+        .panel h3 { margin-top: 0; }
+        .settings-grid {
             display: grid;
-            margin-bottom: 12px;
-            padding: 4px;
-            background: rgba(0, 240, 255, 0.01);
-            position: relative;
-            box-sizing: border-box;
+            grid-template-columns: 1.45fr 1fr;
+            gap: 14px;
         }
-
-        /* Lưới Mã Khóa 4x4 */
-        .decoy-grid {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 4px;
-            background: rgba(255, 0, 127, 0.02);
-            border: 1px dashed #ff007f;
-            box-shadow: 0 0 10px rgba(255, 0, 127, 0.15);
-            border-radius: 4px;
+        @media (max-width: 720px) {
+            .settings-grid { grid-template-columns: 1fr; }
         }
-
-        /* Lưới Dữ Liệu 3x9 */
-        .grid-3x9 {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            border: 1px solid #00f0ff;
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
-            border-radius: 4px;
-            transition: all 0.4s ease;
+        .field > label {
+            display: block;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px rgba(255,255,255,.55);
+            margin-bottom: 6px;
         }
-
-        .grid-item {
-            background: #040814;
-            position: relative;
-            border-radius: 3px;
-            touch-action: none;
-            box-sizing: border-box;
-            height: 46px; 
+        .cyber-input, .cyber-textarea, .cyber-select {
+            width: 100%;
+            background: #020611;
+            border: 1px solid rgba(0, 240, 255, 0.55);
+            border-radius: 7px;
+            color: #ffffff;
+            caret-color: #ff007f;
+            padding: 9px 10px;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            outline: none;
+            -webkit-user-select: text;
+            user-select: text;
+            box-shadow: inset 0 0 12px rgba(0, 240, 255, 0.06);
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+        .cyber-textarea { resize: vertical; min-height: 74px; }
+        .cyber-input:focus, .cyber-textarea:focus, .cyber-select:focus {
+            border-color: #ff007f;
+            box-shadow: 0 0 0 2px rgba(255, 0, 127, 0.18), 0 0 14px rgba(255, 0, 127, 0.25), inset 0 0 12px rgba(0,240,255,.06);
+        }
+        .cyber-select { padding: 6px 8px; }
+        .field-row {
             display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
+            flex-wrap: wrap;
             align-items: center;
-            padding-top: 3px;
-            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s; 
+            gap: 8px 12px;
+            margin-top: 8px;
+            font-size: 12px;
         }
+        .field-row .cyber-select { width: auto; }
+        .token-count { color: #ffd700; text-shadow: 0 0 5px rgba(255,215,0,.55); font-weight: bold; }
+        .help-text { font-size: 11px; line-height: 1.5; color: rgba(180, 245, 255, 0.78); margin: 6px 0 0; }
+        .form-message { min-height: 18px; margin: 10px 0 0; font-size: 12px; font-weight: bold; line-height: 1.5; }
+        .form-message.success { color: #00ff64; text-shadow: 0 0 6px rgba(0,255,100,.5); }
+        .form-message.error { color: #ff5577; text-shadow: 0 0 6px rgba(255,0,90,.5); }
+        .code-message { min-height: 18px; margin: 6px 0 0; font-size: 11px; font-weight: bold; line-height: 1.5; }
+        .code-message.success { color: #00ff64; }
+        .code-message.error { color: #ff5577; }
+        .code-preview {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            min-height: 29px;
+            margin-top: 7px;
+        }
+        .code-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            padding: 4px 7px;
+            border: 1px solid #ffd700;
+            border-radius: 999px;
+            background: rgba(255, 215, 0, 0.09);
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 0 8px rgba(255,215,0,.28), inset 0 0 8px rgba(255,215,0,.09);
+        }
+        .code-arrow { color: #ff007f; font-weight: bold; text-shadow: 0 0 6px #ff007f; }
 
-        .decoy-grid .grid-item { border: 1px solid #ff007f; box-shadow: inset 0 0 6px rgba(255, 0, 127, 0.1); }
-        .grid-3x9 .grid-item { border: 1px solid #00f0ff; box-shadow: inset 0 0 8px rgba(0, 240, 255, 0.15); }
+        .button-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 
-        /* SỐ THỨ TỰ (STT) ĐÃ ĐƯỢC LÀM SÁNG */
-        .cell-id {
+        /* Nút bấm nhỏ gọn kiểu 3D: mặt trên bóng sáng, thân gradient dọc,
+           cạnh dưới dày tạo chiều sâu; khi nhấn, nút lún xuống như nút thật */
+        .btn {
+            --btn-edge: #003442;
+            --btn-glow: rgba(0, 240, 255, .28);
+            position: relative;
+            overflow: hidden;
+            appearance: none;
+            min-height: 30px;
+            border: 1px solid #00f0ff;
+            border-bottom: 3px solid var(--btn-edge);
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-family: inherit;
             font-size: 10px;
             font-weight: bold;
-            letter-spacing: 0.5px;
-            line-height: 1;
-            margin-bottom: 2px;
-            opacity: 1; 
+            line-height: 1.25;
+            letter-spacing: .55px;
+            text-transform: uppercase;
+            color: #e8fdff;
+            background: linear-gradient(180deg, #24748c 0%, #0a3d55 46%, #031525 100%);
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,.55),
+                inset 0 -7px 10px rgba(0,0,0,.42),
+                inset 1px 0 0 rgba(255,255,255,.12),
+                inset -1px 0 0 rgba(0,0,0,.22),
+                0 4px 0 var(--btn-edge),
+                0 7px 13px rgba(0,0,0,.48),
+                0 0 11px var(--btn-glow);
+            text-shadow: 0 1px 2px rgba(0,0,0,.72), 0 0 5px rgba(255,255,255,.22);
+            cursor: pointer;
+            touch-action: manipulation;
+            transform: translateY(0);
+            transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+        }
+        /* Lớp bóng kính ở nửa trên của nút 3D */
+        .btn::before {
+            content: "";
+            position: absolute;
+            left: 2px;
+            right: 2px;
+            top: 1px;
+            height: 46%;
+            border-radius: 6px 6px 50% 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,.03));
             pointer-events: none;
-            color: #ffd700; 
-            text-shadow: 0 0 4px #ffd700, 0 0 8px rgba(255, 215, 0, 0.6); 
+        }
+        /* Vệt sáng chạy qua khi rê chuột */
+        .btn::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.30) 50%, transparent 75%);
+            transform: translateX(-130%);
+            pointer-events: none;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.16) saturate(1.12);
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,.58),
+                inset 0 -7px 10px rgba(0,0,0,.42),
+                inset 1px 0 0 rgba(255,255,255,.13),
+                inset -1px 0 0 rgba(0,0,0,.22),
+                0 5px 0 var(--btn-edge),
+                0 9px 16px rgba(0,0,0,.5),
+                0 0 14px var(--btn-glow);
+        }
+        .btn:hover::after { transform: translateX(130%); transition: transform .5s ease; }
+        .btn:active {
+            transform: translateY(3px);
+            filter: brightness(1.2) saturate(1.15);
+            box-shadow:
+                inset 0 2px 5px rgba(0,0,0,.45),
+                inset 0 -3px 7px rgba(0,0,0,.35),
+                0 1px 0 var(--btn-edge),
+                0 3px 7px rgba(0,0,0,.45),
+                0 0 9px var(--btn-glow);
+        }
+        .btn:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+        .btn-primary {
+            --btn-edge: #430a63;
+            --btn-glow: rgba(255, 0, 127, .42);
+            background: linear-gradient(180deg, #ff8ac2 0%, #ff007f 38%, #9b30ff 76%, #48106f 100%);
+            border-color: #ffb0d3;
+            color: #ffffff;
+        }
+        .btn-cyan {
+            --btn-edge: #004757;
+            --btn-glow: rgba(0, 240, 255, .38);
+            background: linear-gradient(180deg, #7df7ff 0%, #00bfd6 42%, #007aa6 78%, #003d5c 100%);
+            border-color: #a5fbff;
+            color: #ffffff;
+        }
+        .btn-gold {
+            --btn-edge: #6b4700;
+            --btn-glow: rgba(255, 215, 0, .34);
+            background: linear-gradient(180deg, #fff09a 0%, #ffd700 38%, #ce9b00 76%, #705000 100%);
+            border-color: #ffe873;
+            color: #fffbe6;
+        }
+        .btn-ghost {
+            --btn-edge: #00384a;
+            --btn-glow: rgba(0, 240, 255, .22);
+            background: linear-gradient(180deg, rgba(0,240,255,.22), rgba(0,104,135,.22) 48%, rgba(0,10,24,.72));
         }
 
-        /* Chữ nội dung nằm chính giữa phía dưới STT */
-        .grid-item textarea {
+        .current-code-line {
+            margin: 0 auto 12px;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 215, 0, .28);
+            border-radius: 999px;
+            background: rgba(255, 215, 0, .055);
+            font-size: 12.5px;
+            line-height: 1.5;
+            text-align: center;
+            color: rgba(232, 251, 255, .94);
+        }
+        .current-code-line b { color: #ffd700; text-shadow: 0 0 6px rgba(255,215,0,.6); letter-spacing: 1px; }
+        .drag-hint {
+            margin: 0 0 16px;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 215, 0, .38);
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, .09), rgba(255, 215, 0, .025));
+            color: #ffe98a;
+            font-size: 12.5px;
+            line-height: 1.55;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 10px 24px rgba(0,0,0,.22);
+        }
+
+        /* Thẻ bao từng khu vực chính giúp giao diện có bố cục rõ và cân đối */
+        .app-header {
+            margin-bottom: 18px;
+            padding: 20px 22px 18px;
+            border: 1px solid rgba(0, 240, 255, .22);
+            border-radius: 18px;
+            background:
+                linear-gradient(135deg, rgba(255, 0, 127, .11), transparent 42%),
+                linear-gradient(180deg, rgba(0, 240, 255, .07), rgba(255,255,255,.015)),
+                rgba(4, 6, 16, .88);
+            box-shadow: 0 18px 42px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.06);
+            text-align: center;
+        }
+        .app-header .eyebrow {
+            margin: 0 0 6px;
+            color: #54edff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .app-header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: clamp(24px, 4vw, 38px);
+            line-height: 1.12;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 18px rgba(255, 0, 127, .42), 0 2px 3px #000;
+        }
+        .app-header p:last-child {
+            margin: 8px auto 0;
+            max-width: 660px;
+            color: rgba(220, 250, 255, .78);
+            font-size: 13px;
+            line-height: 1.55;
+        }
+        .showcase-panel {
+            margin-bottom: 18px;
+            padding: 16px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012)), rgba(3, 4, 12, .9);
+            box-shadow: 0 18px 42px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.055);
+        }
+        .showcase-panel h3 {
+            padding-bottom: 9px;
+            border-bottom: 1px solid rgba(255,255,255,.09);
+        }
+        .lock-panel { border: 1px solid rgba(231, 176, 106, .48); }
+        .lock-panel h3 { color: #ffca7a; text-shadow: 0 0 10px rgba(255, 176, 82, .34); }
+        .data-panel { border: 1px solid rgba(230, 170, 107, .5); }
+        .data-panel h3 { color: #ffb066; text-shadow: 0 0 10px rgba(255, 145, 64, .34); }
+        .output-panel { border: 1px solid rgba(0, 207, 224, .42); }
+        .output-panel h3 { color: #54edff; text-shadow: 0 0 10px rgba(0, 240, 255, .35); }
+        @media (max-width: 620px) {
+            .container { width: min(100% - 14px, 1040px); margin-top: 14px; }
+            .app-header { padding: 16px 12px 14px; }
+            .showcase-panel { padding: 12px 9px; border-radius: 14px; }
+            h3 { font-size: 13px; }
+            .current-code-line { border-radius: 12px; }
+        }
+
+        /* --- CỔNG MẬT KHẨU MỞ KHUNG THAY ĐỔI --- */
+        [hidden] { display: none !important; }
+        .password-gate {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 215, 0, .65);
+            border-radius: 10px;
+            background:
+                linear-gradient(135deg, rgba(255, 215, 0, .10), rgba(255, 0, 127, .06) 55%, rgba(0, 240, 255, .06)),
+                #07050a;
+            box-shadow: 0 0 16px rgba(255, 215, 0, .16), inset 0 0 20px rgba(255, 215, 0, .04);
+        }
+        .password-gate strong {
+            display: block;
+            color: #ffffff;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 7px rgba(255,255,255,.55);
+            margin-bottom: 3px;
+        }
+        .password-gate span { display: block; font-size: 12px; line-height: 1.5; color: rgba(230,250,255,.88); }
+        .password-gate .btn { flex: 0 0 auto; }
+        .password-box {
+            padding: 11px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 0, 127, .55);
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(255,0,127,.07), rgba(0,240,255,.04)), #04030a;
+            box-shadow: 0 0 16px rgba(255, 0, 127, .16), inset 0 0 20px rgba(255,0,127,.04);
+        }
+        .password-box > label {
+            display: block;
+            margin-bottom: 7px;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .password-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch; }
+        .password-row .cyber-input { flex: 1 1 220px; width: auto; }
+        .password-message { min-height: 19px; margin: 8px 0 0; font-size: 12px; font-weight: bold; line-height: 1.5; }
+        .password-message.success { color: #00ff64; text-shadow: 0 0 6px rgba(0,255,100,.5); }
+        .password-message.error { color: #ff5577; text-shadow: 0 0 6px rgba(255,0,90,.5); }
+        .password-box.shake { animation: passwordShake .35s ease; }
+        @keyframes passwordShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-7px); }
+            40% { transform: translateX(7px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+        @media (max-width: 620px) {
+            .password-gate { align-items: stretch; flex-direction: column; }
+            .password-gate .btn { width: 100%; }
+        }
+
+        /* --- KHU VỰC LƯỚI ---
+           Bảng lưới ôm vừa các nút và nằm giữa thẻ, tránh tình trạng nút nhỏ
+           nhưng cột quá rộng làm giao diện bị thưa và trống hai bên. */
+        .grid-container {
+            display: grid;
+            justify-content: center;
+            width: fit-content;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 14px;
+            position: relative;
+            box-sizing: border-box;
+            border-radius: 16px;
+            background:
+                linear-gradient(rgba(255,255,255,.024) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.024) 1px, transparent 1px),
+                rgba(0, 0, 0, .28);
+            background-size: 24px 24px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.045), inset 0 0 26px rgba(0,0,0,.34);
+        }
+        /* Hai lưới dùng chung 6 cột, cùng bề rộng cột và cùng khoảng cách
+           để các nút phía trên/dưới thẳng hàng, không cái dài cái ngắn. */
+        .decoy-grid {
+            grid-template-columns: repeat(6, 145px); /* 26 ô chữ cái A-Z */
+            gap: 12px 14px;
+            border: 1px solid rgba(231, 176, 106, .42);
+        }
+        .main-grid {
+            grid-template-columns: repeat(6, 145px);
+            gap: 12px 14px;
+            border: 1px solid rgba(230, 170, 107, .42);
+            transition: all 0.4s ease;
+        }
+        @media (max-width: 1020px) {
+            .decoy-grid, .main-grid {
+                width: 100%;
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+            }
+        }
+        /* Máy tính bảng: 4 cột cho cả hai lưới để nút không bị bóp quá hẹp */
+        @media (max-width: 820px) {
+            .decoy-grid, .main-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 11px 10px;
+            }
+        }
+        /* Điện thoại dọc: 3 cột; màn hình rất nhỏ: 2 cột để đọc rõ nội dung */
+        @media (max-width: 620px) {
+            .grid-container { width: 100%; padding: 10px 7px; border-radius: 13px; }
+            .decoy-grid, .main-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 8px; }
+        }
+        @media (max-width: 380px) {
+            .decoy-grid, .main-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; }
+        }
+        /* Ô lưới = nút 3D nhỏ gọn với nền tối, ít chói hơn để chữ và
+           biểu tượng bên trong nổi rõ; vẫn giữ cạnh dưới dày và hào quang nhẹ. */
+        .grid-item {
+            --tile-edge: #021d2a;
+            --tile-glow: rgba(0, 195, 225, .22);
             width: 100%;
+            max-width: 145px;
+            height: 40px;
+            justify-self: center;
+            align-self: center;
+            background: linear-gradient(180deg, #175d75 0%, #0c3e5a 52%, #051b2e 100%);
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            border: 1px solid #63d7e8;
+            border-bottom: 3px solid var(--tile-edge);
+            border-radius: 11px;
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,.3),
+                inset 0 -9px 12px rgba(0,0,0,.46),
+                inset 1px 0 0 rgba(255,255,255,.07),
+                inset -1px 0 0 rgba(0,0,0,.3),
+                0 3px 0 var(--tile-edge),
+                0 6px 12px rgba(0,0,0,.46),
+                0 0 10px var(--tile-glow);
+            touch-action: none;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 8px;
+            padding: 3px 8px;
+            cursor: grab;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform .22s cubic-bezier(.2,.9,.25,1.25), border-color .18s, box-shadow .18s, filter .18s;
+        }
+        .grid-item::before {
+            content: "";
+            position: absolute;
+            z-index: 0;
+            left: 3px;
+            right: 3px;
+            top: 2px;
+            height: 36%;
+            border-radius: 8px 8px 50% 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.006));
+            pointer-events: none;
+        }
+        .grid-item:active { cursor: grabbing; }
+        @media (hover: hover) {
+            .grid-item:not(.dragging):hover {
+                transform: translateY(-1px);
+                filter: brightness(1.11) saturate(1.07);
+                box-shadow:
+                    inset 0 1px 1px rgba(255,255,255,.34),
+                    inset 0 -9px 12px rgba(0,0,0,.46),
+                    0 4px 0 var(--tile-edge),
+                    0 8px 15px rgba(0,0,0,.5),
+                    0 0 14px var(--tile-glow);
+            }
+        }
+        /* Lưới khóa phía trên: vàng đồng/nâu sáng — cùng họ màu ấm với
+           đỏ nâu ở lưới dưới nhưng sáng và ngả vàng hơn để phân biệt */
+        .decoy-grid .grid-item {
+            --tile-edge: #2d1c07;
+            --tile-glow: rgba(255, 176, 82, .27);
+            width: 100%;
+            max-width: 145px;
+            border-color: #e7b06a;
+            background: linear-gradient(180deg, #b57f36 0%, #80561f 52%, #382306 100%);
+        }
+        /* Lưới dữ liệu phía dưới: cùng kích thước nút với lưới khóa,
+           nền đỏ nâu trầm và chữ trắng/vàng đậm nổi trên nền */
+        .main-grid .grid-item {
+            --tile-edge: #251005;
+            --tile-glow: rgba(255, 145, 64, .25);
+            width: 100%;
+            max-width: 145px;
+            border-color: #d99a5e;
+            background: linear-gradient(180deg, #a65c34 0%, #78371f 52%, #35160b 100%);
+        }
+        .main-grid .grid-item::before {
+            background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.005));
+        }
+        @media (max-width: 1020px) {
+            .decoy-grid .grid-item, .main-grid .grid-item { width: min(100%, 145px); }
+        }
+        @media (max-width: 620px) {
+            .decoy-grid .grid-item, .main-grid .grid-item { width: 100%; max-width: none; }
+        }
+        .grid-item.matched {
+            --tile-edge: #03351e;
+            --tile-glow: rgba(0, 230, 118, .34);
+            border-color: #54e59a !important;
+            background: linear-gradient(180deg, #23865a 0%, #0d6842 42%, #07472f 76%, #02170d 100%) !important;
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,.4),
+                inset 0 -8px 11px rgba(0,0,0,.48),
+                0 3px 0 var(--tile-edge),
+                0 5px 10px rgba(0,0,0,.52),
+                0 0 9px var(--tile-glow),
+                0 0 18px rgba(0,230,118,.22) !important;
+        }
+        .cell-id {
+            position: relative;
+            z-index: 1;
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 30px;
+            height: 24px;
+            padding: 2px 6px;
+            border: 1px solid rgba(255, 228, 92, .28);
+            border-radius: 999px;
+            background: rgba(0, 0, 0, .26);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.8px;
+            line-height: 1.1;
+            margin-bottom: 0;
+            pointer-events: none;
+            color: #ffe45c;
+            text-shadow:
+                0 1px 2px #000,
+                0 0 3px rgba(0,0,0,.95),
+                0 0 7px rgba(255, 213, 0, .62);
+        }
+        .grid-item textarea {
+            position: relative;
+            z-index: 1;
+            flex: 1 1 0;
+            width: auto;
+            min-width: 0;
             height: 24px;
             background: transparent;
             border: none;
+            border-left: 1px solid rgba(255,255,255,.16);
             color: #ffffff;
-            text-shadow: 0 0 4px #ffffff;
-            padding: 0 2px;
+            text-shadow:
+                0 1px 2px #000,
+                0 0 4px rgba(0,0,0,.92),
+                0 0 6px rgba(255,255,255,.34);
+            padding: 0 2px 0 8px;
             box-sizing: border-box;
             resize: none;
             font-size: 14px;
-            font-weight: bold;
+            font-weight: 900;
+            letter-spacing: .2px;
             text-align: center;
             font-family: inherit;
             pointer-events: none;
             overflow: hidden;
             line-height: 24px;
         }
+        .grid-item textarea.long-text { font-size: 11px; }
+        .grid-item textarea.very-long-text { font-size: 9px; }
+        /* Lưới khóa: chữ cái và icon to hơn để nhìn rõ từng ô */
+        .decoy-grid .cell-id { font-size: 13px; }
+        .decoy-grid .grid-item textarea { font-size: 18px; line-height: 24px; }
 
-        /* HIỆU ỨNG ĐI CÙNG NHAU KHI KÉO THẢ */
+        /* Trên máy tính bảng/điện thoại, nhãn trái thu gọn hơn một chút
+           nhưng vẫn tách rõ khỏi nội dung chính và đủ cao để chạm kéo */
+        @media (max-width: 820px) {
+            .grid-item { height: 42px; gap: 7px; padding: 3px 7px; }
+            .cell-id { min-width: 27px; height: 23px; font-size: 11.5px; }
+            .decoy-grid .cell-id { font-size: 12px; }
+            .grid-item textarea { height: 23px; line-height: 23px; font-size: 13px; padding-left: 7px; }
+            .decoy-grid .grid-item textarea { font-size: 17px; line-height: 23px; }
+        }
+        @media (max-width: 620px) {
+            .grid-item { height: 42px; gap: 6px; padding: 3px 6px; }
+            .cell-id { min-width: 25px; height: 22px; padding: 1px 5px; font-size: 11px; letter-spacing: .45px; }
+            .decoy-grid .cell-id { font-size: 11.5px; }
+            .grid-item textarea { height: 22px; line-height: 22px; font-size: 12.5px; padding-left: 6px; }
+            .grid-item textarea.long-text { font-size: 10.5px; }
+            .grid-item textarea.very-long-text { font-size: 9px; }
+            .decoy-grid .grid-item textarea { font-size: 16px; line-height: 22px; }
+        }
+        @media (max-width: 380px) {
+            .grid-item { height: 44px; }
+            .cell-id { min-width: 28px; }
+        }
         .grid-item.dragging {
             position: fixed !important;
             z-index: 9999 !important;
-            opacity: 0.95;
-            transform: scale(1.1) !important;
+            opacity: 0.97;
+            transform: scale(1.09) rotate(-1deg) !important;
             border: 1px solid #ffffff !important;
-            background: #091630 !important;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 0 25px rgba(0, 240, 255, 0.3) !important;
+            border-bottom: 4px solid var(--tile-edge) !important;
+            filter: brightness(1.16) saturate(1.1);
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,.5),
+                inset 0 -9px 12px rgba(0,0,0,.5),
+                0 8px 0 var(--tile-edge),
+                0 17px 25px rgba(0,0,0,.62),
+                0 0 12px rgba(255,255,255,.72),
+                0 0 24px var(--tile-glow) !important;
             transition: none !important;
+            cursor: grabbing !important;
         }
-
-        /* Hiệu ứng dạt ô sang hai bên */
-        .grid-item.shift-left { transform: translateX(-12px) scale(0.96); border-color: #ffd700 !important; }
-        .grid-item.shift-right { transform: translateX(12px) scale(0.96); border-color: #ffd700 !important; }
+        .drag-placeholder {
+            --tile-edge: transparent;
+            opacity: .2;
+            border: 1px dashed rgba(255,255,255,.75) !important;
+            background: rgba(255,255,255,.03) !important;
+            box-shadow: inset 0 0 10px rgba(255,255,255,.08) !important;
+        }
+        /* Khi ô đang kéo tiến vào GIỮA hai ô: ô bên trái khe dạt trái,
+           ô bên phải khe dạt phải, mở ra khoảng trống để thả vào */
+        .grid-item.part-left {
+            transform: translateX(-15px) translateY(-1px) scale(.93) !important;
+            border-color: #ffd700 !important;
+            filter: brightness(1.18);
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,.62),
+                inset 0 -8px 11px rgba(0,0,0,.42),
+                0 3px 0 var(--tile-edge),
+                0 6px 11px rgba(0,0,0,.5),
+                0 0 13px rgba(255,215,0,.72) !important;
+        }
+        .grid-item.part-right {
+            transform: translateX(15px) translateY(-1px) scale(.93) !important;
+            border-color: #ffd700 !important;
+            filter: brightness(1.18);
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,.62),
+                inset 0 -8px 11px rgba(0,0,0,.42),
+                0 3px 0 var(--tile-edge),
+                0 6px 11px rgba(0,0,0,.5),
+                0 0 13px rgba(255,215,0,.72) !important;
+        }
+        @media (max-width: 560px) {
+            .grid-item.part-left { transform: translateX(-10px) translateY(-1px) scale(.93) !important; }
+            .grid-item.part-right { transform: translateX(10px) translateY(-1px) scale(.93) !important; }
+        }
 
         /* --- OUTPUT AREA --- */
-        .output-container {
-            position: relative;
-            width: 100%;
-            transition: all 0.4s ease;
-        }
-
+        .output-container { position: relative; width: 100%; transition: all 0.4s ease; }
         .output-box {
             width: 100%;
-            min-height: 90px;
-            height: auto; 
-            background: #030306;
-            border: 1px solid #00f0ff;
-            color: #00f0ff;
-            text-shadow: 0 0 4px rgba(0, 240, 255, 0.6);
-            padding: 8px;
-            padding-top: 38px; 
+            min-height: 200px;
+            height: 200px;
+            max-height: 200px;
+            background:
+                linear-gradient(180deg, rgba(0, 240, 255, .045), rgba(255,255,255,.008)),
+                #02050a;
+            border: 1px solid rgba(0, 207, 224, .62);
+            color: #54edff;
+            text-shadow: 0 1px 2px #000, 0 0 5px rgba(0, 240, 255, 0.42);
+            padding: 12px;
+            padding-top: 42px;
             box-sizing: border-box;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: bold;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13.5px;
+            font-weight: 800;
             resize: none;
-            border-radius: 4px;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
-            letter-spacing: 0.5px;
-            line-height: 1.6;
-            overflow-y: hidden; 
+            border-radius: 13px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.045), inset 0 0 24px rgba(0, 240, 255, .045), 0 12px 26px rgba(0,0,0,.26);
+            letter-spacing: 0.25px;
+            line-height: 1.55;
+            overflow-y: auto;
+            scrollbar-gutter: stable;
+            -webkit-user-select: text;
+            user-select: text;
         }
-
         .btn-copy {
             position: absolute;
-            top: 6px;
-            right: 6px;
-            background: #030306;
-            border: 1px solid #00f0ff;
-            color: #00f0ff;
-            padding: 4px 12px;
-            font-size: 10px;
-            font-weight: bold;
-            font-family: inherit;
-            text-transform: uppercase;
-            border-radius: 3px;
-            cursor: pointer;
-            box-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
-            transition: all 0.1s ease;
+            top: 8px;
+            right: 8px;
             z-index: 20;
+            min-height: 28px;
+            padding: 4px 9px;
         }
-        .btn-copy:active { background: #00f0ff; color: #020204; box-shadow: 0 0 10px #00f0ff; }
+        .btn-copy.copied {
+            --btn-edge: #064e2b;
+            --btn-glow: rgba(0, 255, 120, .38);
+            background: linear-gradient(180deg, #7dffb6 0%, #00c853 45%, #007a4d 82%, #063d24 100%);
+            border-color: #69ffb4;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- KHÓA 4x4 -->
-    <h3>
-        <span>1. Crypto Controller (4x4)</span>
-        <span id="lockStatus" class="status-badge status-locked">MATRIX SHUFFLING</span>
-    </h3>
-    <div class="grid-container decoy-grid" id="decoyGrid"></div>
+    <header class="app-header">
+        <p class="eyebrow">Matrix Encryption Console</p>
+        <h1>Cyber Matrix Crypto Pro</h1>
+        <p>Sắp xếp lưới khóa theo đúng dãy chữ cái để khôi phục cụm dữ liệu về thứ tự gốc.</p>
+    </header>
 
-    <!-- LƯỚI CHÍNH 3x9 -->
-    <h3>2. Matrix Data (3x9)</h3>
-    <div class="grid-container grid-3x9" id="mainGrid"></div>
+    <!-- CỔNG MẬT KHẨU: nhập đúng mật khẩu mới hiện khung thay đổi -->
+    <div class="password-gate" id="passwordGate">
+        <div>
+            <strong id="passwordGateTitle">🔐 Khung thay đổi đang khóa</strong>
+            <span id="passwordGateText">Bấm nút “Mật khẩu”, nhập đúng mật khẩu thì khung thay đổi cụm từ &amp; mã khóa mới hiện ra.</span>
+        </div>
+        <button type="button" id="btnPasswordGate" class="btn btn-gold">🔑 Mật khẩu</button>
+    </div>
+
+    <div class="password-box" id="passwordBox" hidden>
+        <label for="settingsPasswordInput">Mật khẩu mở khung thay đổi</label>
+        <div class="password-row">
+            <input id="settingsPasswordInput" class="cyber-input" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu...">
+            <button type="button" id="btnTogglePassword" class="btn btn-ghost" aria-label="Hiện hoặc ẩn mật khẩu">👁 Hiện</button>
+            <button type="button" id="btnUnlockSettings" class="btn btn-primary">🔓 Mở khóa</button>
+            <button type="button" id="btnCancelPassword" class="btn btn-ghost">Hủy</button>
+        </div>
+        <p id="passwordMessage" class="password-message"></p>
+    </div>
+
+    <!-- THIẾT LẬP CỤM TỪ + MÃ KHÓA (mặc định ẩn sau mật khẩu) -->
+    <section class="panel" id="settingsPanel" aria-label="Thiết lập cụm từ và mã khóa" hidden>
+        <h3>
+            <span>0. Phrase &amp; Lock Setup</span>
+            <span class="status-badge status-unlocked">TÙY CHỈNH</span>
+        </h3>
+
+        <div class="settings-grid">
+            <div class="field">
+                <label for="phraseInput">Cụm từ bất kỳ</label>
+                <textarea id="phraseInput" class="cyber-textarea" rows="3" spellcheck="false">board whiskey awkward work pudding chimney coin broken old safe nation victory link safe lounge victory aspect legal pear recall rate arrow dust reason gloom custom yellow</textarea>
+                <div class="field-row">
+                    <label>Cách tách:
+                        <select id="splitMode" class="cyber-select">
+                            <option value="words" selected>Theo từ (dấu cách)</option>
+                            <option value="chars">Theo từng ký tự</option>
+                        </select>
+                    </label>
+                    <span id="tokenCount" class="token-count"></span>
+                </div>
+                <div class="button-row">
+                    <button type="button" id="btnApplyPhrase" class="btn btn-primary">⚡ Nạp &amp; xáo trộn</button>
+                    <button type="button" id="btnSamplePhrase" class="btn btn-ghost">↺ Dùng cụm mẫu</button>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="codeInput">Mã khóa bất kỳ (chữ cái A–Z)</label>
+                <input id="codeInput" class="cyber-input" type="text" value="I-F-A" inputmode="text" autocomplete="off" spellcheck="false" placeholder="VD: I-F-A, L-D-O-B hoặc viết liền KLM">
+                <div id="codePreview" class="code-preview"></div>
+                <p id="codeMessage" class="code-message"></p>
+                <p class="help-text">Nhập từ 2–26 chữ cái <b>A–Z không trùng nhau</b>, ngăn cách bằng dấu <b>-</b>, dấu cách, dấu phẩy, hoặc viết liền như <b>IFA</b>. Nếu quen mã số cũ, nhập <b>09-06-01</b> cũng được — hệ thống tự đổi thành <b>I-F-A</b>.</p>
+                <div class="button-row">
+                    <button type="button" id="btnApplyCode" class="btn btn-gold">🔐 Áp dụng mã</button>
+                    <button type="button" id="btnRandomCode" class="btn btn-cyan">🎲 Mã ngẫu nhiên</button>
+                    <button type="button" id="btnShuffleLock" class="btn btn-primary">🔀 Xáo trộn lưới khóa</button>
+                </div>
+            </div>
+        </div>
+
+        <p id="settingsMessage" class="form-message"></p>
+    </section>
+
+    <p class="drag-hint">🖱️ <b>Máy tính:</b> nhấn giữ chuột rồi kéo. &nbsp;📱 <b>Điện thoại:</b> nhấn giữ khoảng 0,3 giây rồi kéo. Khi đưa ô vào <b>giữa hai ô</b>, hai ô hai bên sẽ tự dạt ra để mở khe — thả tay/chuột là ô nằm vào đúng khe đó.</p>
+
+    <!-- KHÓA CHỮ CÁI A-Z -->
+    <section class="showcase-panel lock-panel" aria-label="Lưới khóa chữ cái A đến Z">
+        <h3>
+            <span>1. Crypto Controller (A–Z • 26 ô)</span>
+            <span id="lockStatus" class="status-badge status-locked">🔒 CHƯA KHỚP MÃ</span>
+        </h3>
+        <p class="current-code-line">Mã hiện tại: <b id="currentCodeDisplay">I → F → A</b> — hãy xếp các ô mang chữ cái này thành một dãy liên tiếp đúng thứ tự trên lưới khóa.</p>
+        <div class="grid-container decoy-grid" id="decoyGrid"></div>
+    </section>
+
+    <!-- LƯỚI DỮ LIỆU -->
+    <section class="showcase-panel data-panel" aria-label="Lưới dữ liệu Matrix">
+        <h3><span id="mainGridTitle">2. Matrix Data (6x5)</span></h3>
+        <div class="grid-container main-grid" id="mainGrid"></div>
+    </section>
 
     <!-- KẾT QUẢ -->
-    <h3>3. Output Stream</h3>
-    <div class="output-container" id="outputArea">
-        <button class="btn-copy" id="btnCopy">Copy</button>
-        <textarea id="textStreamLog" class="output-box" readonly placeholder="Đang tính toán chuỗi dữ liệu..."></textarea>
-    </div>
+    <section class="showcase-panel output-panel" aria-label="Kết quả Output Stream">
+        <h3>3. Output Stream</h3>
+        <div class="output-container" id="outputArea">
+            <button type="button" class="btn btn-cyan btn-copy" id="btnCopy">📋 Copy</button>
+            <textarea id="textStreamLog" class="output-box" readonly placeholder="Đang tính toán chuỗi dữ liệu..."></textarea>
+        </div>
+    </section>
 </div>
 
 <script>
     const decoyGrid = document.getElementById('decoyGrid');
     const mainGrid = document.getElementById('mainGrid');
-    const outputArea = document.getElementById('outputArea');
+    const mainGridTitle = document.getElementById('mainGridTitle');
     const textStreamLog = document.getElementById('textStreamLog');
     const btnCopy = document.getElementById('btnCopy');
     const lockStatus = document.getElementById('lockStatus');
+    const currentCodeDisplay = document.getElementById('currentCodeDisplay');
 
-    // Mảng dữ liệu ban đầu cho lưới 4x4 (gồm STT và Icon đi cùng nhau)
-    let decoyData = [
-        { id: "01", val: "👁" }, { id: "02", val: "🔮" }, { id: "03", val: "⚡" }, { id: "04", val: "☣" },
-        { id: "05", val: "❖" }, { id: "06", val: "🔺" }, { id: "07", val: "⎔" }, { id: "08", val: "𝝮" },
-        { id: "09", val: "⚙" }, { id: "10", val: "✦" }, { id: "11", val: "✕" }, { id: "12", val: "🌀" },
-        { id: "13", val: "⛓" }, { id: "14", val: "⚝" }, { id: "15", val: "🔱" }, { id: "16", val: "💎" }
-    ];
-    
-    // Chuỗi văn bản đích mặc định 3x9 bạn yêu cầu
+    const phraseInput = document.getElementById('phraseInput');
+    const splitMode = document.getElementById('splitMode');
+    const tokenCount = document.getElementById('tokenCount');
+    const btnApplyPhrase = document.getElementById('btnApplyPhrase');
+    const btnSamplePhrase = document.getElementById('btnSamplePhrase');
+    const codeInput = document.getElementById('codeInput');
+    const codePreview = document.getElementById('codePreview');
+    const codeMessage = document.getElementById('codeMessage');
+    const btnApplyCode = document.getElementById('btnApplyCode');
+    const btnRandomCode = document.getElementById('btnRandomCode');
+    const btnShuffleLock = document.getElementById('btnShuffleLock');
+    const settingsMessage = document.getElementById('settingsMessage');
+
+    const settingsPanel = document.getElementById('settingsPanel');
+    const passwordGateTitle = document.getElementById('passwordGateTitle');
+    const passwordGateText = document.getElementById('passwordGateText');
+    const btnPasswordGate = document.getElementById('btnPasswordGate');
+    const passwordBox = document.getElementById('passwordBox');
+    const settingsPasswordInput = document.getElementById('settingsPasswordInput');
+    const btnTogglePassword = document.getElementById('btnTogglePassword');
+    const btnUnlockSettings = document.getElementById('btnUnlockSettings');
+    const btnCancelPassword = document.getElementById('btnCancelPassword');
+    const passwordMessage = document.getElementById('passwordMessage');
+
+    /* ============================================================
+       MẬT KHẨU MỞ KHUNG THAY ĐỔI — hãy sửa chuỗi trong dấu "" dưới đây
+       thành mật khẩu của bạn:
+       ============================================================ */
+    const SETTINGS_PASSWORD = "q";
+    let settingsUnlocked = false;
+
     const DEFAULT_TARGET_WORDS = [
-        "board", "whiskey", "awkward", "work", "pudding", "chimney", "coin", "broken", "old", 
-        "safe", "nation", "victory", "link", "safe", "lounge", "victory", "aspect", "legal", 
+        "board", "whiskey", "awkward", "work", "pudding", "chimney", "coin", "broken", "old",
+        "safe", "nation", "victory", "link", "safe", "lounge", "victory", "aspect", "legal",
         "pear", "recall", "rate", "arrow", "dust", "reason", "gloom", "custom", "yellow"
     ];
+    const MAX_TOKENS = 144;
+    const MAIN_GRID_COLUMNS = 6; // máy tính: lưới dữ liệu cùng 6 cột với lưới khóa để thẳng hàng
 
-    // Cấu trúc dữ liệu lưới 3x9
+    /* Số cột thay đổi theo bề rộng màn hình, khớp với các breakpoint CSS:
+       điện thoại rất nhỏ 2 cột, điện thoại 3 cột, máy tính bảng 4 cột, máy tính 6 cột */
+    function currentGridColumns() {
+        const width = window.innerWidth || document.documentElement.clientWidth || 1024;
+        if (width <= 380) return 2;
+        if (width <= 620) return 3;
+        if (width <= 820) return 4;
+        return MAIN_GRID_COLUMNS;
+    }
+
+    function updateMainGridTitle() {
+        const columns = currentGridColumns();
+        const rows = Math.max(1, Math.ceil(mainData.length / columns));
+        const labelRange = mainData.length ? " • ký hiệu A–" + letterLabel(mainData.length - 1) : "";
+        mainGridTitle.textContent = "2. Matrix Data (" + columns + "×" + rows + " • " + mainData.length + " ô" + labelRange + ")";
+    }
+
+    // Mảng dữ liệu lưới khóa: đủ 26 chữ cái A-Z (chữ cái và icon luôn đi cùng nhau khi kéo)
+    let decoyData = [
+        { id: "A", val: "👁" }, { id: "B", val: "🔮" }, { id: "C", val: "⚡" }, { id: "D", val: "☣" }, { id: "E", val: "❖" }, { id: "F", val: "🔺" },
+        { id: "G", val: "⎔" }, { id: "H", val: "𝝮" }, { id: "I", val: "⚙" }, { id: "J", val: "✦" }, { id: "K", val: "✕" }, { id: "L", val: "🌀" },
+        { id: "M", val: "⛓" }, { id: "N", val: "⚝" }, { id: "O", val: "🔱" }, { id: "P", val: "💎" }, { id: "Q", val: "🌙" }, { id: "R", val: "⭐" },
+        { id: "S", val: "🪐" }, { id: "T", val: "🧿" }, { id: "U", val: "🗝️" }, { id: "V", val: "♜" }, { id: "W", val: "♞" }, { id: "X", val: "☾" },
+        { id: "Y", val: "✧" }, { id: "Z", val: "⌬" }
+    ];
+
+    let targetTokens = [...DEFAULT_TARGET_WORDS];
+    let appliedSplitMode = 'words'; // chế độ tách của cụm từ ĐANG nạp (không đổi chỉ vì đổi dropdown)
     let mainData = [];
-    DEFAULT_TARGET_WORDS.forEach((word, idx) => {
-        mainData.push({
-            id: String(idx + 1).padStart(2, '0'),
-            val: word
-        });
-    });
-
-    let cachedRects = [];
-    let activeItem = null;
-    let initialX = 0, initialY = 0;
-    let targetInsertIndex = null;
-    let pressTimer = null;
-    let isLongPressed = false;
+    let lockCode = ["I", "F", "A"];      // tương đương mã số cũ 09-06-01; người dùng tự đổi được bằng chữ A-Z
     let isCorrectSequence = false;
 
-    // Thuật toán xáo trộn Fisher-Yates
+    let cachedRects = [];
+    let dragState = null;
+
+    /* Nhãn chữ cái liên tục cho lưới dữ liệu: A, B, ..., Z, AA, AB, ..., AZ, BA... */
+    function letterLabel(index) {
+        let n = index + 1;
+        let label = '';
+        while (n > 0) {
+            n -= 1;
+            label = String.fromCharCode(65 + (n % 26)) + label;
+            n = Math.floor(n / 26);
+        }
+        return label;
+    }
+
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
         }
+        return array;
     }
 
-    // Hàm xáo trộn văn bản của lưới 3x9
+    /* ================= CỤM TỪ TÙY Ý ================= */
+    function splitGraphemes(text) {
+        if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+            return [...new Intl.Segmenter('vi', { granularity: 'grapheme' }).segment(text)].map(s => s.segment);
+        }
+        return Array.from(text);
+    }
+
+    function parsePhrase(raw, mode) {
+        if (mode === 'chars') {
+            return splitGraphemes(raw).map(ch => ch.trim()).filter(Boolean);
+        }
+        return raw.trim().split(/\s+/).filter(Boolean);
+    }
+
+    function currentPhraseTokens() {
+        return parsePhrase(phraseInput.value, splitMode.value);
+    }
+
+    function updateTokenCount() {
+        const tokens = currentPhraseTokens();
+        const columns = currentGridColumns();
+        const rows = Math.max(1, Math.ceil(tokens.length / columns));
+        tokenCount.textContent = tokens.length
+            ? tokens.length + " phần tử • lưới " + columns + " × " + rows
+            : "Chưa có phần tử nào";
+    }
+
+    function buildMainData(tokens) {
+        return tokens.map((val, idx) => ({ id: letterLabel(idx), val }));
+    }
+
     function shuffleMainValues() {
+        if (mainData.length < 2) return;
+        const targetJoined = targetTokens.join('\u0001');
         let valuesOnly = mainData.map(item => item.val);
-        shuffleArray(valuesOnly);
-        mainData.forEach((item, idx) => {
-            item.val = valuesOnly[idx];
+        // Trộn tối đa 10 lần để tránh vô tình trùng đúng cụm gốc khi còn đang khóa
+        for (let attempt = 0; attempt < 10; attempt++) {
+            shuffleArray(valuesOnly);
+            if (valuesOnly.join('\u0001') !== targetJoined) break;
+        }
+        mainData.forEach((item, idx) => { item.val = valuesOnly[idx]; });
+    }
+
+    function restoreTargetValues() {
+        mainData.forEach((item, idx) => { item.val = targetTokens[idx] || ""; });
+    }
+
+    function showSettingsMessage(text, type = "success") {
+        settingsMessage.textContent = text;
+        settingsMessage.className = "form-message " + type;
+    }
+
+    function applyPhrase() {
+        const tokens = currentPhraseTokens();
+        if (!tokens.length) {
+            showSettingsMessage("❌ Hãy nhập ít nhất một từ/ký tự cho cụm từ.", "error");
+            phraseInput.focus();
+            return;
+        }
+        if (tokens.length > MAX_TOKENS) {
+            showSettingsMessage("❌ Cụm từ có " + tokens.length + " phần tử; tối đa " + MAX_TOKENS + " phần tử để tránh trang quá nặng.", "error");
+            return;
+        }
+        targetTokens = tokens;
+        appliedSplitMode = splitMode.value;
+        mainData = buildMainData(tokens);
+        shuffleMainValues();
+        const matched = refreshLockState(); // nếu lưới khóa đang đúng mã thì tự khôi phục về cụm gốc
+        renderAll();
+        showSettingsMessage(
+            "✅ Đã nạp " + tokens.length + " phần tử (" + (splitMode.value === 'chars' ? "ký tự" : "từ") + "). " +
+            (matched ? "Mã khóa đang khớp nên dữ liệu hiển thị đúng thứ tự gốc." : "Dữ liệu đã được xáo trộn — hãy xếp đúng mã khóa để khôi phục."),
+            "success"
+        );
+    }
+
+    /* ================= MÃ KHÓA CHỮ CÁI A-Z ================= */
+    function letterFromNumber(n) {
+        return String.fromCharCode(64 + n); // 1->A, 2->B, ..., 26->Z
+    }
+
+    // Chỉ dùng để tương thích cách nhập số cũ: "961" -> [9,6,1], "12041502" -> [12,4,15,2]
+    function parseContinuousDigits(raw) {
+        if (/^[1-9]+$/.test(raw) && raw.length <= 9) {
+            return raw.split('').map(Number);
+        }
+        if (raw.length % 2 === 0) {
+            const pairs = [];
+            for (let i = 0; i < raw.length; i += 2) pairs.push(Number(raw.slice(i, i + 2)));
+            if (pairs.every(n => n >= 1 && n <= 26)) return pairs;
+        }
+        const nums = [];
+        let i = 0;
+        while (i < raw.length) {
+            const two = Number(raw.slice(i, i + 2));
+            const one = Number(raw[i]);
+            if (i + 1 < raw.length && two >= 10 && two <= 26) {
+                nums.push(two);
+                i += 2;
+            } else if (one >= 1 && one <= 9) {
+                nums.push(one);
+                i += 1;
+            } else {
+                throw new Error("Ký tự “" + raw[i] + "” không đổi được thành chữ cái A–Z.");
+            }
+        }
+        return nums;
+    }
+
+    function parseLockCode(raw) {
+        const text = String(raw || "").trim();
+        if (!text) throw new Error("Hãy nhập mã khóa bằng chữ cái, ví dụ I-F-A.");
+        let letters = [];
+
+        if (/^\d+$/.test(text)) {
+            letters = parseContinuousDigits(text).map(letterFromNumber);
+        } else {
+            const parts = text.split(/[\s,\-–—>→;|]+/).filter(Boolean);
+            if (!parts.length) throw new Error("Mã khóa rỗng.");
+            parts.forEach(part => {
+                if (/^[A-Za-z]+$/.test(part)) {
+                    letters.push(...part.toUpperCase().split(''));
+                } else if (/^\d+$/.test(part)) {
+                    if (part.length <= 2) {
+                        const n = Number(part);
+                        if (n < 1 || n > 26) throw new Error("Số cũ " + part + " nằm ngoài phạm vi 01–26 (A–Z).");
+                        letters.push(letterFromNumber(n));
+                    } else {
+                        letters.push(...parseContinuousDigits(part).map(letterFromNumber));
+                    }
+                } else {
+                    throw new Error("“" + part + "” không phải chữ cái A–Z hợp lệ.");
+                }
+            });
+        }
+
+        if (letters.length < 2) throw new Error("Mã khóa cần ít nhất 2 chữ cái.");
+        if (letters.length > 26) throw new Error("Mã khóa tối đa 26 chữ cái.");
+        letters.forEach(ch => {
+            if (!/^[A-Z]$/.test(ch)) throw new Error("“" + ch + "” nằm ngoài bảng chữ cái A–Z.");
+        });
+        if (new Set(letters).size !== letters.length) {
+            throw new Error("Mỗi chữ cái chỉ xuất hiện một lần trên lưới khóa, nên mã không được trùng chữ.");
+        }
+        return letters;
+    }
+
+    function renderCodeChips(container, code) {
+        container.textContent = "";
+        code.forEach((id, idx) => {
+            const chip = document.createElement('span');
+            chip.className = 'code-chip';
+            chip.textContent = id;
+            container.appendChild(chip);
+            if (idx < code.length - 1) {
+                const arrow = document.createElement('span');
+                arrow.className = 'code-arrow';
+                arrow.textContent = '→';
+                container.appendChild(arrow);
+            }
         });
     }
 
-    // Khôi phục lưới 3x9 về chuỗi gốc
-    function resetMainValuesToDefault() {
-        mainData.forEach((item, idx) => {
-            item.val = DEFAULT_TARGET_WORDS[idx];
-        });
+    function renderCodePreview() {
+        try {
+            const parsed = parseLockCode(codeInput.value);
+            renderCodeChips(codePreview, parsed);
+            codeMessage.textContent = "✓ Mã hợp lệ gồm " + parsed.length + " chữ cái liên tiếp.";
+            codeMessage.className = "code-message success";
+            return parsed;
+        } catch (err) {
+            codePreview.textContent = "";
+            codeMessage.textContent = "✕ " + err.message;
+            codeMessage.className = "code-message error";
+            return null;
+        }
     }
 
+    function updateCurrentCodeDisplay() {
+        currentCodeDisplay.textContent = lockCode.join(' → ');
+    }
+
+    function applyLockCode() {
+        const parsed = renderCodePreview();
+        if (!parsed) {
+            showSettingsMessage("❌ Mã khóa chưa hợp lệ — hãy kiểm tra dòng báo lỗi dưới ô nhập mã.", "error");
+            codeInput.focus();
+            return;
+        }
+        lockCode = parsed;
+        codeInput.value = lockCode.join('-');
+        updateCurrentCodeDisplay();
+        const matched = refreshLockState();
+        if (!matched) shuffleMainValues();
+        renderAll();
+        showSettingsMessage(
+            "🔐 Đã đổi mã khóa thành " + lockCode.join(' → ') + ". " +
+            (matched ? "Lưới khóa hiện tại đang khớp mã này nên dữ liệu đã được khôi phục." : "Hãy kéo các ô trên lưới khóa cho dãy chữ cái này nằm liên tiếp đúng thứ tự."),
+            "success"
+        );
+    }
+
+    function randomLockCode() {
+        let length = 3;
+        try { length = parseLockCode(codeInput.value).length; } catch (e) { length = 4; }
+        const pool = shuffleArray(Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)));
+        codeInput.value = pool.slice(0, length).join('-');
+        renderCodePreview();
+        applyLockCode();
+    }
+
+    function shuffleLockGrid() {
+        let attempts = 0;
+        do {
+            shuffleArray(decoyData);
+            attempts++;
+        } while (findSequenceStart(decoyData, lockCode) !== -1 && attempts < 200);
+        shuffleMainValues();
+        refreshLockState();
+        renderAll();
+        showSettingsMessage("🔀 Đã xáo trộn lưới khóa (đảm bảo chưa vô tình trúng mã) và xáo trộn lại dữ liệu.", "success");
+    }
+
+    /* ================= KIỂM TRA MÃ KHÓA ================= */
+    function findSequenceStart(data, code) {
+        if (!code.length || data.length < code.length) return -1;
+        for (let i = 0; i <= data.length - code.length; i++) {
+            let ok = true;
+            for (let j = 0; j < code.length; j++) {
+                if (data[i + j].id !== code[j]) { ok = false; break; }
+            }
+            if (ok) return i;
+        }
+        return -1;
+    }
+
+    function refreshLockState() {
+        const matched = findSequenceStart(decoyData, lockCode) !== -1;
+        isCorrectSequence = matched;
+        if (matched) {
+            lockStatus.textContent = "🔓 MẬT KHẨU KHỚP";
+            lockStatus.className = "status-badge status-unlocked";
+            restoreTargetValues();
+        } else {
+            lockStatus.textContent = "🔒 CHƯA KHỚP MÃ";
+            lockStatus.className = "status-badge status-locked";
+        }
+        updateCurrentCodeDisplay();
+        return matched;
+    }
+
+    /* ================= RENDER ================= */
     function renderEngine(gridElement, dataArray, prefixStr) {
         gridElement.innerHTML = '';
+        const matchStart = prefixStr === 'decoy' ? findSequenceStart(dataArray, lockCode) : -1;
         dataArray.forEach((itemData, idx) => {
             const item = document.createElement('div');
             item.className = 'grid-item';
             item.setAttribute('data-index', idx);
             item.setAttribute('data-grid', prefixStr);
+            item.title = itemData.val;
+            if (matchStart !== -1 && idx >= matchStart && idx < matchStart + lockCode.length) {
+                item.classList.add('matched');
+            }
 
             const label = document.createElement('span');
             label.className = 'cell-id';
-            label.innerText = itemData.id; 
+            label.textContent = itemData.id;
 
             const textarea = document.createElement('textarea');
-            textarea.value = itemData.val;      
+            textarea.value = itemData.val;
+            textarea.readOnly = true;
+            textarea.rows = 1;
+            if (itemData.val.length > 16) textarea.classList.add('very-long-text');
+            else if (itemData.val.length > 10) textarea.classList.add('long-text');
 
             item.appendChild(label);
             item.appendChild(textarea);
-            
-            setupTouchEngine(item, dataArray, prefixStr);
+            setupPointerEngine(item, dataArray, prefixStr);
             gridElement.appendChild(item);
         });
     }
 
-    // LOGIC THAY ĐỔI: Kiểm tra xem 3 ô mang STT "09", "06", "01" có nằm cạnh nhau không
-    function checkSequenceStatus() {
-        let matchFound = false;
-        
-        // Quét qua mảng 4x4 để tìm cụm liên tiếp 09 -> 06 -> 01
-        for (let i = 0; i <= decoyData.length - 3; i++) {
-            if (decoyData[i].id === "09" && decoyData[i+1].id === "06" && decoyData[i+2].id === "01") {
-                matchFound = true;
-                break;
-            }
-        }
-
-        if (matchFound) {
-            isCorrectSequence = true;
-            lockStatus.innerText = "Mật khẩu khớp";
-            lockStatus.className = "status-badge status-unlocked";
-            resetMainValuesToDefault(); // Trả về chuỗi văn bản đích mặc định không xáo trộn
-        } else {
-            isCorrectSequence = false;
-            lockStatus.innerText = "Random";
-            lockStatus.className = "status-badge status-locked";
-        }
-    }
-
     function renderAll() {
+        updateMainGridTitle();
         renderEngine(decoyGrid, decoyData, 'decoy');
         renderEngine(mainGrid, mainData, 'main');
         updateRealTimeLog();
     }
 
     function autoResizeOutput() {
-        textStreamLog.style.height = 'auto';
-        textStreamLog.style.height = (textStreamLog.scrollHeight) + 'px';
+        // Vùng nhìn Output Stream cố định 200px để đọc được nhiều dòng cùng lúc
+        textStreamLog.style.height = '200px';
+        textStreamLog.style.overflowY = 'auto';
     }
 
+    function updateRealTimeLog() {
+        const joiner = appliedSplitMode === 'chars' ? '' : ' ';
+        const pureTextValues = mainData.map(item => item.val.trim() === "" ? "Ø" : item.val);
+        textStreamLog.value = pureTextValues.join(joiner);
+        autoResizeOutput();
+    }
+
+    /* ================= KÉO THẢ BẰNG CHUỘT + CẢM ỨNG (Pointer Events) ================= */
     function cacheGridLayout(prefixStr) {
         cachedRects = [];
-        const items = document.querySelectorAll(`.grid-item[data-grid="${prefixStr}"]:not(.dragging)`);
+        const items = document.querySelectorAll('.grid-item[data-grid="' + prefixStr + '"]:not(.dragging)');
         items.forEach(item => {
             const rect = item.getBoundingClientRect();
             cachedRects.push({
-                index: parseInt(item.getAttribute('data-index')),
+                index: parseInt(item.getAttribute('data-index'), 10),
                 left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom,
                 width: rect.width, height: rect.height,
                 centerX: rect.left + rect.width / 2,
@@ -353,168 +1264,327 @@
         });
     }
 
-    function setupTouchEngine(item, dataArray, prefixStr) {
-        item.addEventListener('touchstart', function(e) {
-            isLongPressed = false;
-            const touch = e.touches[0];
-            
-            pressTimer = setTimeout(() => {
-                isLongPressed = true;
-                activeItem = item;
-                
-                cacheGridLayout(prefixStr);
-                const rect = item.getBoundingClientRect();
-                
-                item.style.width = rect.width + 'px';
-                item.style.height = rect.height + 'px';
-                
-                initialX = touch.clientX - rect.left;
-                initialY = touch.clientY - rect.top;
-                
-                item.style.left = rect.left + 'px';
-                item.style.top = rect.top + 'px';
-                
-                item.classList.add('dragging');
-                targetInsertIndex = parseInt(item.getAttribute('data-index'));
-            }, 350); 
-        }, { passive: true });
+    function clearShiftClasses(prefixStr) {
+        document.querySelectorAll('.grid-item[data-grid="' + prefixStr + '"]').forEach(el => {
+            el.classList.remove('part-left', 'part-right');
+        });
+    }
 
-        item.addEventListener('touchmove', function(e) {
-            if (!isLongPressed) {
-                clearTimeout(pressTimer);
-                return;
+    function positionDraggedItem(clientX, clientY) {
+        if (!dragState) return;
+        dragState.item.style.left = (clientX - dragState.offsetX) + 'px';
+        dragState.item.style.top = (clientY - dragState.offsetY) + 'px';
+    }
+
+    function updateDragTarget(clientX, clientY) {
+        if (!dragState) return;
+        const fromIndex = dragState.fromIndex;
+        let closestBox = null;
+        let minDistance = 99999;
+
+        cachedRects.forEach(box => {
+            if (box.index === fromIndex) return;
+            const dist = Math.hypot(clientX - box.centerX, clientY - box.centerY);
+            if (dist < minDistance && dist < 85) {
+                minDistance = dist;
+                closestBox = box;
             }
-            
-            if (e.cancelable) e.preventDefault();
-            if (!activeItem) return;
-            
-            const touch = e.touches[0];
-            const currentX = touch.clientX;
-            const currentY = touch.clientY;
-            
-            activeItem.style.left = (currentX - initialX) + 'px';
-            activeItem.style.top = (currentY - initialY) + 'px';
-            
-            let closestBox = null;
-            let minDistance = 99999;
-            
-            cachedRects.forEach(box => {
-                if (box.index === parseInt(activeItem.getAttribute('data-index'))) return;
-                
-                const dist = Math.hypot(currentX - box.centerX, currentY - box.centerY);
-                if (dist < minDistance && dist < 80) { 
-                    minDistance = dist;
-                    closestBox = box;
-                }
-            });
+        });
 
-            document.querySelectorAll(`.grid-item[data-grid="${prefixStr}"]`).forEach(el => {
-                el.classList.remove('shift-left', 'shift-right');
-            });
+        clearShiftClasses(dragState.prefixStr);
 
-            if (closestBox) {
-                targetInsertIndex = closestBox.index;
-                const fromIndex = parseInt(activeItem.getAttribute('data-index'));
+        if (!closestBox) {
+            dragState.insertBeforeIndex = fromIndex;
+            dragState.targetInsertIndex = fromIndex;
+            return;
+        }
 
-                cachedRects.forEach(box => {
-                    if (box.index === fromIndex) return;
-                    
-                    if (box.index === targetInsertIndex) {
-                        if (currentX < box.centerX) {
-                            box.element.classList.add('shift-right');
-                        } else {
-                            box.element.classList.add('shift-left');
-                        }
-                    } else if (box.index > fromIndex && box.index <= targetInsertIndex) {
-                        box.element.classList.add('shift-left');
-                    } else if (box.index < fromIndex && box.index >= targetInsertIndex) {
-                        box.element.classList.add('shift-right');
+        /* Xác định KHE chèn nằm giữa hai ô: con trỏ ở nửa trái ô gần nhất
+           thì khe nằm trước ô đó, ở nửa phải thì khe nằm sau ô đó. */
+        const insertBeforeIndex = clientX >= closestBox.centerX
+            ? closestBox.index + 1
+            : closestBox.index;
+        dragState.insertBeforeIndex = insertBeforeIndex;
+
+        // Đổi khe chèn (theo thứ tự gốc) thành vị trí cuối sau khi rút ô đang kéo ra
+        dragState.targetInsertIndex = insertBeforeIndex > fromIndex
+            ? insertBeforeIndex - 1
+            : insertBeforeIndex;
+
+        /* Hai ô kẹp hai bên khe tự dạt ra: ô ngay trước khe sang TRÁI,
+           ô ngay sau khe sang PHẢI — mở khoảng trống cho ô đang kéo chui vào giữa */
+        cachedRects.forEach(box => {
+            if (box.index === fromIndex) return;
+            if (box.index === insertBeforeIndex - 1) {
+                box.element.classList.add('part-left');
+            } else if (box.index === insertBeforeIndex) {
+                box.element.classList.add('part-right');
+            }
+        });
+    }
+
+    function startDrag(clientX, clientY) {
+        if (!dragState || dragState.started) return;
+        const item = dragState.item;
+
+        cacheGridLayout(dragState.prefixStr);
+        const rect = item.getBoundingClientRect();
+        dragState.offsetX = dragState.startX - rect.left;
+        dragState.offsetY = dragState.startY - rect.top;
+
+        // Ô giữ chỗ giúp lưới không bị nhảy khi ô đang kéo chuyển sang position:fixed
+        const placeholder = document.createElement('div');
+        placeholder.className = 'grid-item drag-placeholder';
+        placeholder.style.height = rect.height + 'px';
+        item.before(placeholder);
+        dragState.placeholder = placeholder;
+
+        item.style.width = rect.width + 'px';
+        item.style.height = rect.height + 'px';
+        item.classList.add('dragging');
+        dragState.started = true;
+        dragState.insertBeforeIndex = dragState.fromIndex;
+        dragState.targetInsertIndex = dragState.fromIndex;
+
+        positionDraggedItem(clientX, clientY);
+        updateDragTarget(clientX, clientY);
+        if (dragState.pointerType === 'touch' && navigator.vibrate) navigator.vibrate(15);
+    }
+
+    function finishDrag(commit) {
+        if (!dragState) return;
+        const state = dragState;
+        clearTimeout(state.timer);
+        clearShiftClasses(state.prefixStr);
+        if (state.placeholder) state.placeholder.remove();
+
+        let moved = false;
+        if (state.started && commit && state.targetInsertIndex !== null && state.targetInsertIndex !== state.fromIndex) {
+            const movedData = state.dataArray.splice(state.fromIndex, 1)[0];
+            state.dataArray.splice(state.targetInsertIndex, 0, movedData);
+            moved = true;
+        }
+
+        dragState = null;
+
+        if (state.started) {
+            // Kéo lưới khóa mà vẫn chưa đúng mã thì tiếp tục xáo trộn dữ liệu (như bản gốc)
+            if (moved && state.prefixStr === 'decoy' && findSequenceStart(decoyData, lockCode) === -1) {
+                shuffleMainValues();
+            }
+            refreshLockState();
+            renderAll();
+        }
+    }
+
+    function setupPointerEngine(item, dataArray, prefixStr) {
+        item.addEventListener('contextmenu', e => e.preventDefault());
+        item.addEventListener('dragstart', e => e.preventDefault());
+
+        item.addEventListener('pointerdown', function (e) {
+            if (!e.isPrimary) return;
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+            dragState = {
+                item,
+                dataArray,
+                prefixStr,
+                pointerId: e.pointerId,
+                pointerType: e.pointerType || 'mouse',
+                fromIndex: parseInt(item.getAttribute('data-index'), 10),
+                startX: e.clientX,
+                startY: e.clientY,
+                offsetX: 0,
+                offsetY: 0,
+                targetInsertIndex: parseInt(item.getAttribute('data-index'), 10),
+                insertBeforeIndex: parseInt(item.getAttribute('data-index'), 10),
+                started: false,
+                placeholder: null,
+                timer: null
+            };
+
+            try { item.setPointerCapture(e.pointerId); } catch (err) { /* trình duyệt cũ không hỗ trợ cũng không sao */ }
+
+            const delay = dragState.pointerType === 'mouse' ? 110 : 300;
+            const sx = e.clientX, sy = e.clientY;
+            dragState.timer = setTimeout(() => startDrag(sx, sy), delay);
+        });
+
+        item.addEventListener('pointermove', function (e) {
+            if (!dragState || dragState.item !== item || e.pointerId !== dragState.pointerId) return;
+            const dx = e.clientX - dragState.startX;
+            const dy = e.clientY - dragState.startY;
+            const distance = Math.hypot(dx, dy);
+
+            if (!dragState.started) {
+                if (dragState.pointerType === 'mouse') {
+                    // Chuột: chỉ cần giữ và di chuyển nhẹ là bắt đầu kéo ngay
+                    if (distance > 5) {
+                        clearTimeout(dragState.timer);
+                        startDrag(e.clientX, e.clientY);
+                    } else {
+                        return;
                     }
-                });
-            } else {
-                targetInsertIndex = parseInt(activeItem.getAttribute('data-index'));
+                } else {
+                    // Cảm ứng: di chuyển mạnh trước khi nhấn giữ đủ lâu thì hủy ý định kéo (như bản gốc)
+                    if (distance > 12) {
+                        clearTimeout(dragState.timer);
+                        dragState = null;
+                    }
+                    return;
+                }
             }
+
+            if (e.cancelable) e.preventDefault();
+            positionDraggedItem(e.clientX, e.clientY);
+            updateDragTarget(e.clientX, e.clientY);
         }, { passive: false });
 
-        item.addEventListener('touchend', function(e) {
-            clearTimeout(pressTimer);
-            if (!isLongPressed || !activeItem) {
-                activeItem = null;
+        function endPointer(e) {
+            if (!dragState || dragState.item !== item || e.pointerId !== dragState.pointerId) return;
+            clearTimeout(dragState.timer);
+            if (!dragState.started) {
+                dragState = null;
                 return;
             }
-            
-            document.querySelectorAll(`.grid-item[data-grid="${prefixStr}"]`).forEach(el => {
-                el.classList.remove('shift-left', 'shift-right');
-            });
-            
-            const fromIndex = parseInt(activeItem.getAttribute('data-index'));
-            
-            if (targetInsertIndex !== null && targetInsertIndex !== fromIndex) {
-                const [movedData] = dataArray.splice(fromIndex, 1);
-                dataArray.splice(targetInsertIndex, 0, movedData);
-                
-                // Mỗi khi kéo thả trên lưới 4x4, hệ thống kiểm tra tạm thời trước khi kích hoạt xáo trộn
-                if (prefixStr === 'decoy') {
-                    let tempMatch = false;
-                    for (let i = 0; i <= decoyData.length - 3; i++) {
-                        if (decoyData[i].id === "09" && decoyData[i+1].id === "06" && decoyData[i+2].id === "01") {
-                            tempMatch = true;
-                            break;
-                        }
-                    }
-                    // Nếu sau khi kéo thả mà 3 ô 9-6-1 KHÔNG đặt cạnh nhau -> Tiếp tục xáo trộn 3x9
-                    if (!tempMatch) {
-                        shuffleMainValues();
-                    }
-                }
-            }
-            
-            activeItem.classList.remove('dragging');
-            activeItem.style.width = ''; activeItem.style.height = '';
-            activeItem.style.left = ''; activeItem.style.top = '';
-            
-            activeItem = null;
-            targetInsertIndex = null;
-            isLongPressed = false;
-            
-            checkSequenceStatus();
-            renderAll();
-        });
+            finishDrag(e.type === 'pointerup');
+        }
+
+        item.addEventListener('pointerup', endPointer);
+        item.addEventListener('pointercancel', endPointer);
     }
 
-    function updateRealTimeLog() {
-        let pureTextValues = mainData.map(item => {
-            return item.val.trim() === "" ? "Ø" : item.val;
-        });
-        
-        textStreamLog.value = pureTextValues.join(' ');
-        autoResizeOutput(); 
+    /* ================= CỔNG MẬT KHẨU MỞ KHUNG THAY ĐỔI ================= */
+    function setPasswordMessage(text, type = "") {
+        passwordMessage.textContent = text;
+        passwordMessage.className = "password-message" + (type ? " " + type : "");
     }
 
-    btnCopy.addEventListener('click', () => {
-        textStreamLog.select();
-        textStreamLog.setSelectionRange(0, 99999);
-        
-        navigator.clipboard.writeText(textStreamLog.value).then(() => {
-            const originalText = btnCopy.innerText;
-            btnCopy.innerText = "Copied!";
-            btnCopy.style.borderColor = "#ff007f";
-            btnCopy.style.color = "#ff007f";
-            setTimeout(() => {
-                btnCopy.innerText = originalText;
-                btnCopy.style.borderColor = "#00f0ff";
-                btnCopy.style.color = "#00f0ff";
-            }, 1000);
-        }).catch(() => {
-            alert("Không thể sao chép tự động.");
-        });
+    function lockSettings() {
+        settingsUnlocked = false;
+        settingsPanel.hidden = true;
+        passwordBox.hidden = true;
+        settingsPasswordInput.value = "";
+        settingsPasswordInput.type = "password";
+        btnTogglePassword.textContent = "👁 Hiện";
+        passwordGateTitle.textContent = "🔐 Khung thay đổi đang khóa";
+        passwordGateText.textContent = "Bấm nút “Mật khẩu”, nhập đúng mật khẩu thì khung thay đổi cụm từ & mã khóa mới hiện ra.";
+        btnPasswordGate.innerHTML = "🔑 Mật khẩu";
+        setPasswordMessage("");
+    }
+
+    function unlockSettings() {
+        if (settingsPasswordInput.value === SETTINGS_PASSWORD) {
+            settingsUnlocked = true;
+            passwordBox.hidden = true;
+            settingsPanel.hidden = false;
+            settingsPasswordInput.value = "";
+            settingsPasswordInput.type = "password";
+            btnTogglePassword.textContent = "👁 Hiện";
+            passwordGateTitle.textContent = "🔓 Khung thay đổi đã mở";
+            passwordGateText.textContent = "Bạn đang xem khung thay đổi cụm từ & mã khóa. Bấm nút bên phải để khóa/ẩn lại.";
+            btnPasswordGate.innerHTML = "🔒 Khóa / ẩn khung";
+            setPasswordMessage("");
+            showSettingsMessage("🔓 Đã mở khung thay đổi. Bạn có thể sửa cụm từ và mã khóa ở đây.", "success");
+            if (settingsPanel.scrollIntoView) settingsPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } else {
+            settingsUnlocked = false;
+            settingsPanel.hidden = true;
+            setPasswordMessage("❌ Mật khẩu chưa đúng — khung thay đổi vẫn đang bị ẩn.", "error");
+            passwordBox.classList.remove('shake');
+            void passwordBox.offsetWidth; // chạy lại hiệu ứng rung
+            passwordBox.classList.add('shake');
+            settingsPasswordInput.select();
+            settingsPasswordInput.focus();
+        }
+    }
+
+    /* ================= SỰ KIỆN NÚT / Ô NHẬP ================= */
+    phraseInput.addEventListener('input', updateTokenCount);
+    splitMode.addEventListener('change', updateTokenCount);
+    btnApplyPhrase.addEventListener('click', applyPhrase);
+    btnSamplePhrase.addEventListener('click', () => {
+        phraseInput.value = DEFAULT_TARGET_WORDS.join(' ');
+        splitMode.value = 'words';
+        updateTokenCount();
+        applyPhrase();
     });
 
-    // Lúc vừa mở trang: Xáo trộn ngẫu nhiên dữ liệu 3x9
-    shuffleMainValues();
-    checkSequenceStatus();
+    codeInput.addEventListener('input', renderCodePreview);
+    codeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') applyLockCode(); });
+    btnApplyCode.addEventListener('click', applyLockCode);
+    btnRandomCode.addEventListener('click', randomLockCode);
+    btnShuffleLock.addEventListener('click', shuffleLockGrid);
+
+    btnPasswordGate.addEventListener('click', () => {
+        if (settingsUnlocked) {
+            lockSettings();
+            return;
+        }
+        passwordBox.hidden = !passwordBox.hidden;
+        setPasswordMessage("");
+        if (!passwordBox.hidden) settingsPasswordInput.focus();
+    });
+    btnUnlockSettings.addEventListener('click', unlockSettings);
+    btnCancelPassword.addEventListener('click', () => {
+        passwordBox.hidden = true;
+        settingsPasswordInput.value = "";
+        setPasswordMessage("");
+    });
+    settingsPasswordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') unlockSettings();
+        if (e.key === 'Escape') passwordBox.hidden = true;
+    });
+    btnTogglePassword.addEventListener('click', () => {
+        const showing = settingsPasswordInput.type === 'text';
+        settingsPasswordInput.type = showing ? 'password' : 'text';
+        btnTogglePassword.textContent = showing ? "👁 Hiện" : "🙈 Ẩn";
+        settingsPasswordInput.focus();
+    });
+
+    btnCopy.addEventListener('click', async () => {
+        const originalHTML = btnCopy.innerHTML;
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(textStreamLog.value);
+            } else {
+                textStreamLog.focus();
+                textStreamLog.select();
+                textStreamLog.setSelectionRange(0, 999999);
+                if (!document.execCommand('copy')) throw new Error("Copy thủ công thất bại");
+            }
+            btnCopy.innerHTML = "✅ Đã copy!";
+            btnCopy.classList.add('copied');
+            setTimeout(() => {
+                btnCopy.innerHTML = originalHTML;
+                btnCopy.classList.remove('copied');
+            }, 1100);
+        } catch (err) {
+            textStreamLog.focus();
+            textStreamLog.select();
+            showSettingsMessage("⚠️ Không copy tự động được — chuỗi kết quả đã được bôi đen, hãy nhấn Ctrl+C (hoặc nhấn giữ để sao chép).", "error");
+        }
+    });
+
+    let resizeTitleTimer = null;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTitleTimer);
+        resizeTitleTimer = setTimeout(() => {
+            updateMainGridTitle();
+            updateTokenCount();
+        }, 80);
+    });
+
+    /* ================= KHỞI TẠO ================= */
+    lockSettings();              // mỗi lần mở/tải lại trang, khung thay đổi đều bị khóa sau mật khẩu
+    mainData = buildMainData(targetTokens);
+    updateTokenCount();
+    renderCodePreview();
+    updateCurrentCodeDisplay();
+    shuffleMainValues();       // vừa mở trang: dữ liệu đang bị xáo trộn
+    refreshLockState();
     renderAll();
 </script>
 
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a501d58db8026e69',t:'MTc5MjkzNzczNQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
